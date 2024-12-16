@@ -65,11 +65,11 @@
 # define NoEventMask 0L
 
 /* Rutas de sprites */
-# define SPRITE_PLAYER "./textures/player.xpm"
-# define SPRITE_WALL "./textures/wall.xpm"
-# define SPRITE_FLOOR "./textures/floor.xpm"
-# define SPRITE_COLLECT "./textures/collect.xpm"
-# define SPRITE_EXIT "./textures/exit.xpm"
+# define SPRITE_PLAYER "textures/player.xpm"
+# define SPRITE_WALL "textures/wall.xpm"
+# define SPRITE_FLOOR "textures/floor.xpm"
+# define SPRITE_COLLECT "textures/collect.xpm"
+# define SPRITE_EXIT "textures/exit.xpm"
 
 typedef struct s_position
 {
@@ -127,6 +127,8 @@ int		render_game(t_game *game);
 void	render_hud(t_game *game);
 void	*scale_image(t_game *game, void *original, float scale);
 void	put_image_to_buffer(int *buffer, void *img, int x, int y, int buffer_width, float scale);
+void	*create_buffer(t_game *game);
+void	adjust_resolution(t_game *game, int width, int height);
 
 /* Funciones de eventos */
 int		key_press(int keycode, t_game *game);

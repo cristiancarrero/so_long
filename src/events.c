@@ -126,3 +126,22 @@ int	key_press(int keycode, t_game *game)
 	}
 	return (0);
 }
+
+void adjust_resolution(t_game *game, int width, int height)
+{
+	float scale_x = (float)width / (game->map_width * TILE_SIZE);
+	float scale_y = (float)height / (game->map_height * TILE_SIZE);
+	
+	game->scale_x = scale_x;
+	game->scale_y = scale_y;
+	game->window_width = width;
+	game->window_height = height;
+}
+
+int window_resize(int width, int height, void *param)
+{
+	t_game *game = (t_game *)param;
+	adjust_resolution(game, width, height);
+	render_game(game);
+	return (0);
+}

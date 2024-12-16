@@ -124,87 +124,44 @@ int	load_images(t_game *game)
 {
 	int	width;
 	int	height;
-
-	if (!game || !game->mlx)
-	{
-		ft_putendl_fd("Error: MLX no inicializado", 2);
-		return (0);
-	}
-
-	ft_putendl_fd("Verificando archivos XPM...", 1);
-
-	char *sprites[] = {SPRITE_WALL, SPRITE_FLOOR, SPRITE_PLAYER, SPRITE_COLLECT, SPRITE_EXIT};
-	char *names[] = {"wall", "floor", "player", "collect", "exit"};
-
-	for (int i = 0; i < 5; i++)
-	{
-		ft_putstr_fd("Verificando ", 1);
-		ft_putstr_fd(names[i], 1);
-		ft_putstr_fd(".xpm: ", 1);
-
-		if (access(sprites[i], F_OK) == -1)
-		{
-			ft_putendl_fd("No existe", 2);
-			ft_putstr_fd("Ruta completa: ", 2);
-			char cwd[1024];
-			if (getcwd(cwd, sizeof(cwd)) != NULL)
-			{
-				ft_putstr_fd(cwd, 2);
-				ft_putchar_fd('/', 2);
-				ft_putendl_fd(sprites[i], 2);
-			}
-			return (0);
-		}
-		else if (access(sprites[i], R_OK) == -1)
-		{
-			ft_putendl_fd("Sin permisos de lectura", 2);
-			return (0);
-		}
-		else
-		{
-			ft_putendl_fd("OK", 1);
-		}
-	}
-
-	ft_putendl_fd("Archivos XPM encontrados, cargando...", 1);
-
+	
+	ft_putendl_fd("Cargando imágenes...", 1);
+	
 	game->img_wall = mlx_xpm_file_to_image(game->mlx, SPRITE_WALL, &width, &height);
 	if (!game->img_wall)
 	{
-		ft_putendl_fd("Error: No se pudo cargar wall.xpm", 2);
+		ft_putendl_fd("Error cargando wall.xpm", 2);
 		return (0);
 	}
-
+	
 	game->img_floor = mlx_xpm_file_to_image(game->mlx, SPRITE_FLOOR, &width, &height);
 	if (!game->img_floor)
 	{
-		ft_putendl_fd("Error: No se pudo cargar floor.xpm", 2);
+		ft_putendl_fd("Error cargando floor.xpm", 2);
 		return (0);
 	}
-
+	
 	game->img_player = mlx_xpm_file_to_image(game->mlx, SPRITE_PLAYER, &width, &height);
 	if (!game->img_player)
 	{
-		ft_putendl_fd("Error: No se pudo cargar player.xpm", 2);
+		ft_putendl_fd("Error cargando player.xpm", 2);
 		return (0);
 	}
-
+	
 	game->img_collect = mlx_xpm_file_to_image(game->mlx, SPRITE_COLLECT, &width, &height);
 	if (!game->img_collect)
 	{
-		ft_putendl_fd("Error: No se pudo cargar collect.xpm", 2);
+		ft_putendl_fd("Error cargando collect.xpm", 2);
 		return (0);
 	}
-
+	
 	game->img_exit = mlx_xpm_file_to_image(game->mlx, SPRITE_EXIT, &width, &height);
 	if (!game->img_exit)
 	{
-		ft_putendl_fd("Error: No se pudo cargar exit.xpm", 2);
+		ft_putendl_fd("Error cargando exit.xpm", 2);
 		return (0);
 	}
-
-	ft_putendl_fd("Todas las imágenes cargadas correctamente", 1);
-	debug_print_images(game);
+	
 	return (1);
 }
 
@@ -220,7 +177,9 @@ void make_transparent(void *img)
 	i = 0;
 	while (i < size_line * TILE_SIZE)
 	{
-		if (*(unsigned int*)(data + i) == 0xFF000000)
+		unsigned int color = *(unsigned int*)(data + i);
+		// Comprobar si el color es negro o casi negro
+		if ((color & 0x00FFFFFF) == 0 || color == 0xFF000000)
 			*(unsigned int*)(data + i) = 0x0;
 		i += 4;
 	}

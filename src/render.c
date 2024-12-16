@@ -33,7 +33,7 @@ void	put_image_to_buffer(int *buffer, void *img, int x, int y, int buffer_width,
 			int src_x = j / scale;
 			int src_y = i / scale;
 			int color = img_data[src_y * TILE_SIZE + src_x];
-			if (color != 0)  // Solo copiar píxeles no transparentes
+			if (color != (int)0x0)  // Solo copiar píxeles no transparentes
 				buffer[(y + i) * buffer_width + (x + j)] = color;
 		}
 	}
@@ -75,36 +75,66 @@ void	*scale_image(t_game *game, void *original, float scale)
 
 void	render_tile(t_game *game, int x, int y)
 {
-	void	*img_to_render;
 	int		pos_x;
 	int		pos_y;
+	int		bpp;
+	int		size_line;
+	int		endian;
+	int		*floor_data;
+	int		*obj_data;
+	void	*img_to_render;
 	
-	// Calcular posición con offset para centrado
-	pos_x = ((game->window_width - (game->map_width * TILE_SIZE * game->scale_x)) / 2) + 
-		(x * TILE_SIZE * game->scale_x);
-	pos_y = ((game->window_height - (game->map_height * TILE_SIZE * game->scale_y)) / 2) + 
-		(y * TILE_SIZE * game->scale_y);
+	pos_x = x * TILE_SIZE;
+	pos_y = y * TILE_SIZE;
 	
-	switch (game->map[y][x])
+	// Inicializar img_to_render como NULL
+	img_to_render = NULL;
+	
+	// Obtener datos del suelo
+	floor_data = (int *)mlx_get_data_addr(game->img_floor, &bpp, &size_line, &endian);
+	
+	// Crear una imagen temporal para el resultado combinado
+	void *combined = mlx_new_image(game->mlx, TILE_SIZE, TILE_SIZE);
+	int *combined_data = (int *)mlx_get_data_addr(combined, &bpp, &size_line, &endian);
+	
+	// Copiar el suelo primero
+	for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++)
+		combined_data[i] = floor_data[i];
+	
+	// Obtener la imagen del objeto y combinarla
+	if (game->map[y][x] == WALL)
+		img_to_render = game->img_wall;
+	else if (game->map[y][x] == PLAYER)
+		img_to_render = game->img_player;
+	else if (game->map[y][x] == COLLECT)
+		img_to_render = game->img_collect;
+	else if (game->map[y][x] == EXIT)
+		img_to_render = game->img_exit;
+	
+	if (img_to_render != NULL)
 	{
-		case WALL:
-			img_to_render = game->img_wall;
-			break;
-		case PLAYER:
-			img_to_render = game->img_player;
-			break;
-		case COLLECT:
-			img_to_render = game->img_collect;
-			break;
-		case EXIT:
-			img_to_render = game->img_exit;
-			break;
-		default:
-			img_to_render = game->img_floor;
+		obj_data = (int *)mlx_get_data_addr(img_to_render, &bpp, &size_line, &endian);
+		for (int i = 0; i < TILE_SIZE * TILE_SIZE; i++)
+		{
+			unsigned int color = (unsigned int)obj_data[i];
+			if (color != (unsigned int)0xFF000000 && color != 0)
+				combined_data[i] = obj_data[i];
+		}
 	}
 	
-	if (img_to_render)
-		mlx_put_image_to_window(game->mlx, game->win, img_to_render, pos_x, pos_y);
+	// Renderizar la imagen combinada
+	mlx_put_image_to_window(game->mlx, game->win, combined, pos_x, pos_y);
+	mlx_destroy_image(game->mlx, combined);
+}
+
+void *create_buffer(t_game *game)
+{
+	void *buffer;
+	int width = game->window_width;
+	int height = game->window_height;
+
+	buffer = mlx_new_image(game->mlx, width, height);
+	return buffer;
 }
 
 int	render_game(t_game *game)
@@ -112,7 +142,6 @@ int	render_game(t_game *game)
 	int	x;
 	int	y;
 	
-	ft_putendl_fd("\n=== Iniciando render_game ===\n", 1);
 	if (!game || !game->mlx || !game->win || !game->map)
 	{
 		ft_putendl_fd("Error: Punteros nulos en render_game", 2);
@@ -145,8 +174,9 @@ void	render_hud(t_game *game)
 {
 	char moves_str[50];
 	char collect_str[50];
-	int text_size = 20 * game->scale_x;
-	int margin = 10 * game->scale_x;
+	int bar_width = 200;
+	int bar_height = 20;
+	int progress;
 	
 	if (!game || !game->mlx || !game->win)
 	{
@@ -155,9 +185,21 @@ void	render_hud(t_game *game)
 	}
 	
 	snprintf(moves_str, sizeof(moves_str), "Moves: %d", game->moves);
-	mlx_string_put(game->mlx, game->win, margin, text_size, 0xFFFFFF, moves_str);
+	snprintf(collect_str, sizeof(collect_str), "Collected: %d/%d", 
+			game->collected, game->collectibles);
 	
-	snprintf(collect_str, sizeof(collect_str), "Collected: %d/%d",
-		game->collected, game->collectibles);
-	mlx_string_put(game->mlx, game->win, margin, text_size * 2, 0xFFFFFF, collect_str);
+	progress = (game->collected * bar_width) / game->collectibles;
+	
+	for (int i = 0; i < bar_width + 20; i++)
+		for (int j = 0; j < bar_height + 40; j++)
+			mlx_pixel_put(game->mlx, game->win, i + 10, j + 10, 0x000000);
+	
+	mlx_string_put(game->mlx, game->win, 20, 20, 0xFFFFFF, moves_str);
+	mlx_string_put(game->mlx, game->win, 20, 40, 0xFFFFFF, collect_str);
+	
+	for (int i = 0; i < bar_width; i++)
+	{
+		int color = i < progress ? 0x00FF00 : 0x444444;
+		mlx_pixel_put(game->mlx, game->win, i + 20, 60, color);
+	}
 }

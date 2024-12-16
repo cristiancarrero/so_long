@@ -32,8 +32,8 @@ void	put_image_to_buffer(int *buffer, void *img, int x, int y, int buffer_width,
 		{
 			int src_x = j / scale;
 			int src_y = i / scale;
-			int color = img_data[src_y * TILE_SIZE + src_x];
-			if (color != 0)  // Solo copiar píxeles no transparentes
+			unsigned int color = (unsigned int)img_data[src_y * TILE_SIZE + src_x];
+			if (color != 0 && color != (unsigned int)0xFF000000 && (color & 0x00FFFFFF) != 0)
 				buffer[(y + i) * buffer_width + (x + j)] = color;
 		}
 	}
@@ -230,12 +230,11 @@ int	render_game(t_game *game)
 		y++;
 	}
 
-	// Mostrar el buffer completo de una vez
-	ft_putendl_fd("Mostrando buffer en ventana...", 1);
+	// Mostrar el buffer actualizado con los enemigos
 	mlx_put_image_to_window(game->mlx, game->win, game->back_buffer, 0, 0);
 	ft_putendl_fd("Buffer mostrado", 1);
 
-	// Renderizar enemigos después de mostrar el buffer
+	// Renderizar enemigos en el buffer antes de mostrarlo
 	if (game->img_enemy)  // Verificar que la imagen del enemigo existe
 	{
 		ft_putendl_fd("Iniciando renderizado de enemigos...", 1);
@@ -246,11 +245,19 @@ int	render_game(t_game *game)
 			ft_putchar_fd('\n', 1);
 			int pos_x = offset_x + game->enemies[i].pos.x * TILE_SIZE * game->scale_x;
 			int pos_y = offset_y + game->enemies[i].pos.y * TILE_SIZE * game->scale_y;
-			mlx_put_image_to_window(game->mlx, game->win, game->img_enemy,
-				pos_x, pos_y);
+			// Dibujar el suelo primero
+			put_image_to_buffer(buffer_data, game->img_floor, pos_x, pos_y,
+				game->window_width, game->scale_x);
+			// Luego dibujar el enemigo
+			put_image_to_buffer(buffer_data, game->img_enemy, pos_x, pos_y,
+				game->window_width, game->scale_x);
 		}
 		ft_putendl_fd("Renderizado de enemigos completado", 1);
 	}
+
+	// Mostrar el buffer actualizado con los enemigos
+	mlx_put_image_to_window(game->mlx, game->win, game->back_buffer, 0, 0);
+	ft_putendl_fd("Buffer mostrado", 1);
 
 	ft_putendl_fd("Debug: Renderizado del mapa completado", 1);
 	render_hud(game);
@@ -267,8 +274,13 @@ void	render_hud(t_game *game)
 {
 	char moves_str[50];
 	char collect_str[50];
-	int text_size = 20 * game->scale_x;
-	int margin = 10 * game->scale_x;
+	char level_str[50];
+	int bar_width = 120;
+	int bar_height = 20;
+	int progress;
+	int hud_x = 5;
+	int hud_y = 5;
+	int text_spacing = 15;
 	
 	if (!game || !game->mlx || !game->win)
 	{
@@ -276,10 +288,30 @@ void	render_hud(t_game *game)
 		return;
 	}
 	
+	// Fondo semi-transparente para el HUD
+	for (int i = 0; i < bar_width + 20; i++)
+		for (int j = 0; j < bar_height + 45; j++)
+			mlx_pixel_put(game->mlx, game->win, i + hud_x, j + hud_y, 0x55000000);
+	
 	snprintf(moves_str, sizeof(moves_str), "Moves: %d", game->moves);
-	mlx_string_put(game->mlx, game->win, margin, text_size, 0xFFFFFF, moves_str);
+	mlx_string_put(game->mlx, game->win, hud_x + 5, hud_y + text_spacing, 0xFFFFFF, moves_str);
 	
 	snprintf(collect_str, sizeof(collect_str), "Collected: %d/%d",
 		game->collected, game->collectibles);
-	mlx_string_put(game->mlx, game->win, margin, text_size * 2, 0xFFFFFF, collect_str);
+	mlx_string_put(game->mlx, game->win, hud_x + 5, hud_y + text_spacing * 2, 0xFFFFFF, collect_str);
+	
+	// Barra de progreso
+	progress = (game->collected * bar_width) / game->collectibles;
+	
+	// Fondo de la barra
+	for (int i = 0; i < bar_width; i++)
+		mlx_pixel_put(game->mlx, game->win, i + hud_x + 5, hud_y + text_spacing * 3, 0x444444);
+	
+	// Progreso
+	for (int i = 0; i < progress; i++)
+		mlx_pixel_put(game->mlx, game->win, i + hud_x + 5, hud_y + text_spacing * 3, 0x00FF00);
+	
+	// Añadir nivel actual
+	snprintf(level_str, sizeof(level_str), "Level: %d", game->current_level);
+	mlx_string_put(game->mlx, game->win, hud_x + 5, hud_y + text_spacing * 4, 0xFFFFFF, level_str);
 }
