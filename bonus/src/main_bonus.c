@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/game.h"
+#include "../inc/game_bonus.h"
 #include "../libft/libft.h"
 
 int	main(int argc, char **argv)

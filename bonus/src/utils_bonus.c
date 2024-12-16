@@ -10,8 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/game.h"
+#include "../inc/game_bonus.h"
 #include "../libft/libft.h"
+#include <sys/time.h>
 
 void	print_error(char *message)
 {
@@ -38,8 +39,17 @@ void	free_game(t_game *game)
 	if (!game)
 		return;
 
+	if (game->player_anim)
+		free_animation(game, game->player_anim);
+
+	if (game->collect_anim)
+		free_animation(game, game->collect_anim);
+
 	if (game->map)
+	{
 		free_map(game->map);
+		game->map = NULL;
+	}
 
 	if (game->mlx)
 	{
@@ -62,6 +72,19 @@ void	free_game(t_game *game)
 		mlx_destroy_display(game->mlx);
 		free(game->mlx);
 		game->mlx = NULL;
+	}
+
+	if (game->level_paths)
+	{
+		for (int i = 0; i < game->max_levels; i++)
+			free(game->level_paths[i]);
+		free(game->level_paths);
+	}
+
+	if (game->enemies)
+	{
+		free(game->enemies);
+		game->enemies = NULL;
 	}
 }
 
@@ -86,4 +109,12 @@ char	**copy_map(char **map, int height)
 	}
 	copy[i] = NULL;
 	return (copy);
+}
+
+int get_time(void)
+{
+	struct timeval tv;
+	
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
