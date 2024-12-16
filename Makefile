@@ -1,58 +1,63 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: your_login <your_login@student.42.fr>      +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/01/01 00:00:00 by your_login       #+#    #+#              #
+#    Updated: 2024/01/01 00:00:00 by your_login      ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME        = so_long
 CC          = gcc
-CFLAGS      = -Wall -Wextra -Werror -I./inc -I./minilibx-linux -D BUFFER_SIZE=42
-MLX_DIR     = minilibx-linux/
-MLX_FLAGS   = -L$(MLX_DIR) -lmlx -lXext -lX11 -lm -lz
-
-# Colores para los mensajes
-GREEN       = \033[0;32m
-RED         = \033[0;31m
-RESET       = \033[0m
+CFLAGS      = -Wall -Wextra -Werror -I$(INC_DIR) -I$(LIBFT_DIR)
+MLX_FLAGS   = -lmlx -lXext -lX11
 
 # Directorios
 SRC_DIR     = src/
 OBJ_DIR     = obj/
 INC_DIR     = inc/
+LIBFT_DIR   = libft/
+
+# Libft
+LIBFT       = $(LIBFT_DIR)libft.a
 
 # Archivos fuente
 SRC_FILES   = main.c \
-              map_parser.c \
-              game_init.c \
-              game_loop.c \
+              init.c \
+              map.c \
               render.c \
-              utils.c \
-              animations.c \
               events.c \
-              enemy_movement.c \
-              get_next_line.c \
-              get_next_line_utils.c
+              utils.c
 
 SRCS        = $(addprefix $(SRC_DIR), $(SRC_FILES))
-OBJS        = $(SRCS:$(SRC_DIR)%.c=$(OBJ_DIR)%.o)
-INCLUDES    = -I$(INC_DIR) -I$(MLX_DIR)
+OBJS        = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 
-all: $(NAME)
+# Reglas
+all: $(LIBFT) $(NAME)
+
+$(LIBFT):
+	@echo "Compilando libft..."
+	@make -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS)
-	@echo "$(GREEN)Compilando MLX...$(RESET)"
-	@make -C $(MLX_DIR) > /dev/null 2>&1
-	@echo "$(GREEN)Compilando $@...$(RESET)"
-	@$(CC) $(OBJS) -o $(NAME) $(MLX_FLAGS)
-	@echo "$(GREEN)¡Compilación completada!$(RESET)"
+	$(CC) $(OBJS) $(LIBFT) $(MLX_FLAGS) -o $(NAME)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	@mkdir -p $(OBJ_DIR)
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@echo "$(RED)Limpiando archivos objeto...$(RESET)"
+	@echo "Limpiando objetos..."
 	@rm -rf $(OBJ_DIR)
-	@make -C $(MLX_DIR) clean > /dev/null 2>&1
+	@make -C $(LIBFT_DIR) clean
 
 fclean: clean
-	@echo "$(RED)Limpiando todo...$(RESET)"
+	@echo "Limpiando ejecutable..."
 	@rm -f $(NAME)
-	@make -C $(MLX_DIR) clean > /dev/null 2>&1
+	@make -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
