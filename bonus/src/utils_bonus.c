@@ -14,6 +14,12 @@
 #include "../libft/libft.h"
 #include <sys/time.h>
 
+int error_handler(char *message)
+{
+	ft_putendl_fd(message, 2);
+	return (1);
+}
+
 void	print_error(char *message)
 {
 	ft_putendl_fd(message, 2);

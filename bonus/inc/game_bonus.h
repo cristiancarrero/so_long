@@ -18,6 +18,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdio.h>
+# include "../../libft/libft.h"
 
 /* Configuración */
 # define TILE_SIZE 64
@@ -66,12 +67,12 @@
 # define NoEventMask 0L
 
 /* Rutas de sprites */
-# define SPRITE_PLAYER "./bonus/textures/player.xpm"
-# define SPRITE_WALL "./bonus/textures/wall.xpm"
-# define SPRITE_FLOOR "./bonus/textures/floor.xpm"
-# define SPRITE_COLLECT "./bonus/textures/collect.xpm"
-# define SPRITE_EXIT "./bonus/textures/exit.xpm"
-# define SPRITE_ENEMY "./bonus/textures/enemy.xpm"
+# define SPRITE_PLAYER "bonus/textures/player.xpm"
+# define SPRITE_WALL "bonus/textures/wall.xpm"
+# define SPRITE_FLOOR "bonus/textures/floor.xpm"
+# define SPRITE_COLLECT "bonus/textures/collect.xpm"
+# define SPRITE_EXIT "bonus/textures/exit.xpm"
+# define SPRITE_ENEMY "bonus/textures/enemy.xpm"
 
 /* Configuración de animaciones */
 # define ANIM_DELAY 100    // Delay entre frames en milisegundos
@@ -201,5 +202,8 @@ void	print_error(char *message);
 void	free_map(char **map);
 int		get_time(void);
 void	debug_print_images(t_game *game);
+
+/* Funciones de utilidad */
+int     error_handler(char *message);
 
 #endif

@@ -16,25 +16,26 @@
 int	main(int argc, char **argv)
 {
 	t_game	game;
+	char	*map_path;
 
 	if (argc != 2)
-	{
-		print_error(ERR_ARGS);
-		return (1);
-	}
+		return (error_handler(ERR_ARGS));
 
+	map_path = argv[1];
+	if (ft_strncmp(map_path, "bonus/maps/", 11) != 0)
+		return (error_handler("Error\nDebe usar un mapa del directorio bonus/maps/"));
+
+	printf("Inicializando juego...\n");
 	if (!init_game(&game))
 		return (1);
 
-	if (!load_game(&game, argv[1]))
+	if (!load_game(&game, map_path))
+	{
+		free_game(&game);
 		return (1);
+	}
 
-	render_game(&game);
-
-	// Configurar el loop principal
-	mlx_hook(game.win, X_EVENT_KEY_PRESS, KeyPressMask, key_press, &game);
-	mlx_hook(game.win, X_EVENT_EXIT, NoEventMask, close_window, &game);
+	printf("Iniciando loop principal...\n");
 	mlx_loop(game.mlx);
-
 	return (0);
 }

@@ -71,30 +71,17 @@ void	move_player(t_game *game, int new_x, int new_y)
 		game->collected++;
 		game->map[new_y][new_x] = EMPTY;
 	}
-	if (game->map[new_y][new_x] == EXIT)
+
+	if (game->map[new_y][new_x] == EXIT && game->collected == game->collectibles)
 	{
-		if (game->collected == game->collectibles)
-		{
-			ft_putstr_fd("Coleccionables recogidos: ", 1);
-			ft_putnbr_fd(game->collected, 1);
-			ft_putstr_fd("/", 1);
-			ft_putnbr_fd(game->collectibles, 1);
-			ft_putchar_fd('\n', 1);
-
-			game->map[game->player.y][game->player.x] = EMPTY;
-			game->map[new_y][new_x] = PLAYER;
-			game->player.x = new_x;
-			
-			game->moves++;
-
-			render_game(game);
-
-			ft_putendl_fd("\n¡Has ganado!", 1);
-			close_window(game);
-			return;
-		}
+		game->moves++;
+		ft_putstr_fd("\n¡Juego completado en ", 1);
+		ft_putnbr_fd(game->moves, 1);
+		ft_putendl_fd(" movimientos!", 1);
+		close_window(game);
 		return;
 	}
+
 	game->map[game->player.y][game->player.x] = EMPTY;
 	game->map[new_y][new_x] = PLAYER;
 	game->player.x = new_x;
@@ -103,6 +90,7 @@ void	move_player(t_game *game, int new_x, int new_y)
 	ft_putstr_fd("Movimientos: ", 1);
 	ft_putnbr_fd(game->moves, 1);
 	ft_putchar_fd('\n', 1);
+
 	render_game(game);
 }
 

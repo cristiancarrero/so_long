@@ -33,8 +33,12 @@ void	put_image_to_buffer(int *buffer, void *img, int x, int y, int buffer_width,
 			int src_x = j / scale;
 			int src_y = i / scale;
 			int color = img_data[src_y * TILE_SIZE + src_x];
-			if (color != (int)0x0)  // Solo copiar píxeles no transparentes
-				buffer[(y + i) * buffer_width + (x + j)] = color;
+			if (color != (int)0xFF000000 && color != 0 && 
+				(color & 0x00FFFFFF) != 0)  // Si no es transparente ni negro
+			{
+				int pos = (y + i) * buffer_width + (x + j);
+				buffer[pos] = color;
+			}
 		}
 	}
 }
@@ -139,33 +143,61 @@ void *create_buffer(t_game *game)
 
 int	render_game(t_game *game)
 {
-	int	x;
-	int	y;
-	
-	if (!game || !game->mlx || !game->win || !game->map)
+	// Crear back buffer si no existe
+	if (!game->back_buffer)
 	{
-		ft_putendl_fd("Error: Punteros nulos en render_game", 2);
-		return (0);
+		int width = game->window_width;
+		int height = game->window_height;
+		game->back_buffer = mlx_new_image(game->mlx, width, height);
+		if (!game->back_buffer)
+			return (0);
 	}
 	
-	// Limpiar la ventana
-	mlx_clear_window(game->mlx, game->win);
+	// Obtener dirección del buffer
+	int bpp, sl, end;
+	int *buffer = (int *)mlx_get_data_addr(game->back_buffer, &bpp, &sl, &end);
 	
-	// Renderizar el mapa
-	y = 0;
-	while (y < game->map_height)
+	// Limpiar el buffer
+	ft_memset(buffer, 0, game->window_width * game->window_height * sizeof(int));
+	
+	// Primera pasada: dibujar el suelo en todo el mapa
+	for (int y = 0; y < game->map_height; y++)
 	{
-		x = 0;
-		while (x < game->map_width)
+		for (int x = 0; x < game->map_width; x++)
 		{
-			render_tile(game, x, y);
-			x++;
+			// Siempre dibujar el suelo primero
+			put_image_to_buffer(buffer, game->img_floor, x * TILE_SIZE, y * TILE_SIZE,
+				game->window_width, 1.0);
 		}
-		y++;
 	}
 	
-	// Renderizar HUD
-	render_hud(game);
+	// Segunda pasada: dibujar los objetos encima del suelo
+	for (int y = 0; y < game->map_height; y++)
+	{
+		for (int x = 0; x < game->map_width; x++)
+		{
+			void *img = NULL;
+			
+			// Solo procesar objetos que no sean suelo
+			if (game->map[y][x] != EMPTY)
+			{
+				switch (game->map[y][x])
+				{
+					case WALL: img = game->img_wall; break;
+					case PLAYER: img = game->img_player; break;
+					case COLLECT: img = game->img_collect; break;
+					case EXIT: img = game->img_exit; break;
+				}
+				
+				if (img)
+					put_image_to_buffer(buffer, img, x * TILE_SIZE, y * TILE_SIZE,
+						game->window_width, 1.0);
+			}
+		}
+	}
+	
+	// Copiar el back buffer a la ventana
+	mlx_put_image_to_window(game->mlx, game->win, game->back_buffer, 0, 0);
 	
 	return (1);
 }

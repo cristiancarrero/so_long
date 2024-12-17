@@ -19,93 +19,20 @@ void	make_transparent(void *img);
 
 int	init_game(t_game *game)
 {
-	// Verificar si ya hay una instancia de MLX
-	void *test_mlx = mlx_init();
-	if (test_mlx)
-	{
-		mlx_destroy_display(test_mlx);
-		free(test_mlx);
-	}
-
-	// Asegurarnos de que las señales no están bloqueadas
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
-	sigaddset(&set, SIGTERM);
-	sigprocmask(SIG_UNBLOCK, &set, NULL);
-
-	ft_putendl_fd("Iniciando MLX...", 1);
+	// Inicializar valores a NULL/0
+	ft_memset(game, 0, sizeof(t_game));
+	
+	// Inicializar MLX
 	game->mlx = mlx_init();
 	if (!game->mlx)
-	{
-		ft_putendl_fd("Error: No se pudo inicializar MLX", 2);
-		return (0);
-	}
+		return (error_handler("Error\nNo se pudo inicializar MLX"));
 
-	game->win = NULL;
-	game->map = NULL;
-	game->back_buffer = NULL;
-	game->img_enemy = NULL;
-	game->map_width = 0;
-	game->map_height = 0;
-	game->window_width = 640;  // Tamaño inicial de la ventana
-	game->window_height = 480; // Tamaño inicial de la ventana
+	// Inicializar otros valores
+	game->state = STATE_PLAYING;
 	game->scale_x = 1.0;
 	game->scale_y = 1.0;
-	game->img_wall = NULL;
-	game->img_floor = NULL;
-	game->img_player = NULL;
-	game->img_collect = NULL;
-	game->img_exit = NULL;
-	game->player.x = 0;
-	game->player.y = 0;
-	game->collectibles = 0;
-	game->collected = 0;
 	game->moves = 0;
-	game->exit_found = 0;
-	game->player_found = 0;
-	game->state = STATE_PLAYING;
-	game->player_anim = NULL;
-	game->collect_anim = NULL;
-	game->current_level = 1;
-	game->max_levels = 3;
-	game->enemies = NULL;
-	game->num_enemies = 0;
-
-	// Inicializar rutas de niveles
-	game->level_paths = malloc(sizeof(char *) * (MAX_LEVELS + 1));
-	if (!game->level_paths)
-		return (0);
-
-	ft_putendl_fd("Inicializando rutas de niveles:", 1);
-	game->level_paths[0] = ft_strdup("bonus/maps/map1.ber");
-	ft_putstr_fd("Nivel 1: ", 1);
-	ft_putendl_fd(game->level_paths[0], 1);
-
-	game->level_paths[1] = ft_strdup("bonus/maps/map2.ber");
-	ft_putstr_fd("Nivel 2: ", 1);
-	ft_putendl_fd(game->level_paths[1], 1);
-
-	game->level_paths[2] = ft_strdup("bonus/maps/map3.ber");
-	ft_putstr_fd("Nivel 3: ", 1);
-	ft_putendl_fd(game->level_paths[2], 1);
-
-	game->level_paths[3] = NULL;
-
-	// Verificar que todos los paths se crearon correctamente
-	for (int i = 0; i < game->max_levels; i++)
-	{
-		if (!game->level_paths[i])
-		{
-			ft_putendl_fd("Error: No se pudo inicializar la ruta del nivel", 2);
-			return (0);
-		}
-	}
-
-	ft_putendl_fd("MLX inicializado correctamente", 1);
-
-	game->player_anim = load_animation(game, "./bonus/textures/player/player", PLAYER_FRAMES);
-	game->collect_anim = load_animation(game, "./bonus/textures/collect/collect", COLLECT_FRAMES);
+	game->collected = 0;
 
 	return (1);
 }
@@ -157,21 +84,6 @@ int	load_game(t_game *game, char *map_path)
 		return (0);
 	}
 
-	ft_putstr_fd("Dimensiones del mapa: ", 1);
-	ft_putnbr_fd(game->map_width, 1);
-	ft_putstr_fd("x", 1);
-	ft_putnbr_fd(game->map_height, 1);
-	ft_putchar_fd('\n', 1);
-
-	game->win = mlx_new_window(game->mlx, game->window_width,
-			game->window_height, WINDOW_TITLE);
-	if (!game->win)
-	{
-		ft_putendl_fd("Error al crear la ventana", 2);
-		free_map(game->map);
-		return (0);
-	}
-
 	ft_putendl_fd("Cargando imágenes...", 1);
 	if (!load_images(game))
 	{
@@ -180,8 +92,24 @@ int	load_game(t_game *game, char *map_path)
 		return (0);
 	}
 
+	game->win = mlx_new_window(game->mlx, game->window_width, game->window_height, "so_long bonus");
+	if (!game->win)
+	{
+		ft_putendl_fd("Error al crear la ventana", 2);
+		free_game(game);
+		return (0);
+	}
+
 	// Configurar los hooks de eventos
 	setup_hooks(game);
+
+	// Renderizar el juego inicial
+	if (!render_game(game))
+	{
+		ft_putendl_fd("Error al renderizar el juego", 2);
+		free_game(game);
+		return (0);
+	}
 
 	return (1);
 }

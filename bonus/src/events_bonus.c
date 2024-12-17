@@ -12,6 +12,8 @@ void setup_hooks(t_game *game)
 
 	// Desactivar autorepetición de teclas
 	mlx_do_key_autorepeatoff(game->mlx);
+
+	// Añadir otros hooks específicos del bonus si los hay
 }
 
 static int load_next_level(t_game *game)

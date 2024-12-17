@@ -112,10 +112,22 @@ int	load_game(t_game *game, char *map_path)
 
 	ft_putendl_fd("Cargando imágenes...", 1);
 	if (!load_images(game))
+	{
+		ft_putendl_fd("Error al cargar imágenes", 2);
+		free_game(game);
 		return (0);
+	}
 
 	// Configurar los hooks de eventos
 	setup_hooks(game);
+
+	// Renderizar el juego inicial
+	if (!render_game(game))
+	{
+		ft_putendl_fd("Error al renderizar el juego", 2);
+		free_game(game);
+		return (0);
+	}
 
 	return (1);
 }
