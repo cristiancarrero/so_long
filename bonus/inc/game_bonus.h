@@ -67,12 +67,17 @@
 # define NoEventMask 0L
 
 /* Rutas de sprites */
-# define SPRITE_PLAYER "bonus/textures/player.xpm"
+# define SPRITE_PLAYER "bonus/textures/player/player.xpm"
 # define SPRITE_WALL "bonus/textures/wall.xpm"
 # define SPRITE_FLOOR "bonus/textures/floor.xpm"
 # define SPRITE_COLLECT "bonus/textures/collect.xpm"
-# define SPRITE_EXIT "bonus/textures/exit.xpm"
-# define SPRITE_ENEMY "bonus/textures/enemy.xpm"
+# define SPRITE_EXIT "bonus/textures/Door/exit.xpm"
+
+/* Rutas de enemigos */
+# define SPRITE_ENEMY1 "bonus/textures/enemy1/enemy1.xpm"    // Enemigo estático
+# define SPRITE_ENEMY2_1 "bonus/textures/enemy2/enemy1.xpm"  // Enemigo animado frame 1
+# define SPRITE_ENEMY2_2 "bonus/textures/enemy2/enemy2.xpm"  // Enemigo animado frame 2
+# define SPRITE_ENEMY2_3 "bonus/textures/enemy2/enemy3.xpm"  // Enemigo animado frame 3
 
 /* Configuración de animaciones */
 # define ANIM_DELAY 100    // Delay entre frames en milisegundos
@@ -126,8 +131,13 @@ typedef struct s_enemy
 {
 	t_position pos;
 	int direction;  // 1 para derecha, -1 para izquierda
-	int patrol_start;
-	int patrol_end;
+	int patrol_start;   // Punto inicial de patrulla
+	int patrol_end;     // Punto final de patrulla
+	void *current;      // Sprite actual
+	void *sprites[3];   // Array para animación
+	int type;          // 1 para tipo X, 2 para tipo N
+	int frame;         // Frame actual para animación
+	int active;        // Si el enemigo está activo
 } t_enemy;
 
 typedef struct s_game
@@ -162,6 +172,9 @@ typedef struct s_game
 	t_enemy *enemies;
 	int     num_enemies;
 	void    *img_enemy;
+	int bpp;           // Bits por pixel
+	int size_line;     // Tamaño de línea
+	int endian;        // Endianness
 }	t_game;
 
 /* Funciones principales */
@@ -177,8 +190,10 @@ char	**copy_map(char **map, int height);
 
 /* Funciones de renderizado */
 int		load_images(t_game *game);
+int		load_enemy_images(t_game *game);
 int		render_game(t_game *game);
 void	render_hud(t_game *game);
+void	render_enemies(t_game *game);
 void	*scale_image(t_game *game, void *original, float scale);
 void	put_image_to_buffer(int *buffer, void *img, int x, int y, int buffer_width, float scale);
 
@@ -194,7 +209,7 @@ void	move_player(t_game *game, int new_x, int new_y);
 void	setup_hooks(t_game *game);
 
 /* Funciones de enemigos */
-void	move_enemies(t_game *game);
+int     move_enemies(void *param);
 
 /* Funciones de utilidad */
 void	free_game(t_game *game);

@@ -197,10 +197,10 @@ int	load_images(t_game *game)
 		return (0);
 	}
 
-	game->img_enemy = mlx_xpm_file_to_image(game->mlx, "./bonus/textures/enemy.xpm", &width, &height);
-	if (!game->img_enemy)
+	// Cargar imágenes de enemigos
+	if (!load_enemy_images(game))
 	{
-		ft_putendl_fd("Error: No se pudo cargar enemy.xpm", 2);
+		ft_putendl_fd("Error al cargar imágenes de enemigos", 2);
 		return (0);
 	}
 
@@ -240,4 +240,77 @@ void	debug_print_images(t_game *game)
 	ft_putendl_fd(game->img_collect ? "Cargado" : "No cargado", 1);
 	ft_putstr_fd("Exit: ", 1);
 	ft_putendl_fd(game->img_exit ? "Cargado" : "No cargado", 1);
+}
+
+void print_file_status(const char *path)
+{
+    ft_putstr_fd("Verificando ", 1);
+    ft_putstr_fd((char *)path, 1);
+    ft_putstr_fd(": ", 1);
+    if (access(path, F_OK) == -1)
+        ft_putendl_fd("No existe", 2);
+    else if (access(path, R_OK) == -1)
+        ft_putendl_fd("Sin permisos de lectura", 2);
+    else
+        ft_putendl_fd("OK", 1);
+}
+
+int load_enemy_images(t_game *game)
+{
+	int width;
+	int height;
+
+	ft_putendl_fd("Cargando imágenes de enemigos...", 1);
+
+	if (!game->enemies || game->num_enemies <= 0)
+		return (1);
+
+	for (int i = 0; i < game->num_enemies; i++)
+	{
+		if (game->enemies[i].type == 1)  // Enemigo tipo 1 (estático)
+		{
+			game->enemies[i].current = mlx_xpm_file_to_image(game->mlx,
+				"bonus/textures/enemy1/enemy1.xpm", &width, &height);
+			if (!game->enemies[i].current)
+			{
+				ft_putendl_fd("Error: No se pudo cargar enemy1.xpm", 2);
+				return (0);
+			}
+			game->enemies[i].sprites[0] = game->enemies[i].current;
+		}
+		else if (game->enemies[i].type == 2)  // Enemigo tipo 2 (animado)
+		{
+			// Cargar los frames de animación
+			game->enemies[i].sprites[0] = mlx_xpm_file_to_image(game->mlx,
+				"bonus/textures/enemy2/enemy1.xpm", &width, &height);
+			game->enemies[i].sprites[1] = mlx_xpm_file_to_image(game->mlx,
+				"bonus/textures/enemy2/enemy2.xpm", &width, &height);
+			game->enemies[i].sprites[2] = mlx_xpm_file_to_image(game->mlx,
+				"bonus/textures/enemy2/enemy3.xpm", &width, &height);
+			
+			if (!game->enemies[i].sprites[0] || !game->enemies[i].sprites[1] || 
+				!game->enemies[i].sprites[2])
+			{
+				// Debug: Imprimir rutas completas
+				char cwd[1024];
+				if (getcwd(cwd, sizeof(cwd)) != NULL)
+				{
+					ft_putstr_fd("Intentando cargar desde:\n", 2);
+					ft_putstr_fd(cwd, 2);
+					ft_putendl_fd("/bonus/textures/enemy2/enemy1.xpm", 2);
+					ft_putstr_fd(cwd, 2);
+					ft_putendl_fd("/bonus/textures/enemy2/enemy2.xpm", 2);
+					ft_putstr_fd(cwd, 2);
+					ft_putendl_fd("/bonus/textures/enemy2/enemy3.xpm", 2);
+				}
+				ft_putendl_fd("Error: No se pudieron cargar los sprites del enemigo tipo 2", 2);
+				return (0);
+			}
+			game->enemies[i].current = game->enemies[i].sprites[0];
+			game->enemies[i].frame = 0;
+		}
+	}
+	
+	ft_putendl_fd("Imágenes de enemigos cargadas correctamente", 1);
+	return (1);
 }

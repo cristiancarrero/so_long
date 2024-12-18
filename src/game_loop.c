@@ -11,7 +11,7 @@ int update_game(t_game *game)
     frame_count++;
     if (frame_count % 10 == 0)
     {
-        game->player_anim.current_frame = (game->player_anim.current_frame + 1) % ANIMATION_FRAMES;
+        animate_enemies(game);
     }
 
     return (render_game(game));
@@ -44,4 +44,18 @@ int game_loop(t_game *game)
     mlx_loop(game->mlx);
 
     return (1);
+}
+
+int game_loop(t_game *game)
+{
+    // Actualizar animaciones
+    if (game->player.is_moving)
+        animate_player(game);
+    if (game->collectibles > 0)
+        animate_door(game);
+    animate_enemies(game);
+    
+    // Renderizar el juego
+    render_game(game);
+    return (0);
 } 

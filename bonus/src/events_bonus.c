@@ -1,5 +1,17 @@
 #include "../inc/game_bonus.h"
 #include "../libft/libft.h"
+#include <sys/time.h>
+
+// Prototipo de la función de colisión
+static int check_enemy_collision(t_game *game, int current_enemy, int x, int y);
+
+// Función para obtener el tiempo actual en milisegundos
+static long get_current_time_ms(void)
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
 
 void setup_hooks(t_game *game)
 {
@@ -9,6 +21,7 @@ void setup_hooks(t_game *game)
 	// Configurar los hooks básicos
 	mlx_hook(game->win, X_EVENT_KEY_PRESS, KeyPressMask, key_press, game);
 	mlx_hook(game->win, X_EVENT_EXIT, NoEventMask, close_window, game);
+	mlx_loop_hook(game->mlx, (int (*)(void *))move_enemies, game);
 
 	// Desactivar autorepetición de teclas
 	mlx_do_key_autorepeatoff(game->mlx);
@@ -210,6 +223,10 @@ void	move_player(t_game *game, int new_x, int new_y)
 	ft_putstr_fd("Movimientos: ", 1);
 	ft_putnbr_fd(game->moves, 1);
 	ft_putchar_fd('\n', 1);
+
+	// Mover enemigos después de cada movimiento del jugador
+	move_enemies(game);
+
 	render_game(game);
 }
 
@@ -320,49 +337,104 @@ int	window_resize(int width, int height, void *param)
 	return (0);
 }
 
-void    move_enemies(t_game *game)
+int    move_enemies(void *param)
 {
+	t_game *game;
+	game = (t_game *)param;
 	if (!game || !game->enemies || game->num_enemies <= 0)
-		return;
-	
-	static int delay = 0;
-	delay++;
-	if (delay < 8)
-		return;
-	delay = 0;
-	
+		return (0);
+
+	static int anim_delay = 0;
+	static long last_move_time = 0;
+	anim_delay++;
+
+	// Actualizar animaciones cada 2 frames
+	if (anim_delay >= 2)
+	{
+		anim_delay = 0;
+		for (int i = 0; i < game->num_enemies; i++)
+		{
+			if (game->enemies[i].type == 2)
+			{
+				game->enemies[i].frame = (game->enemies[i].frame + 1) % 3;
+				game->enemies[i].current = game->enemies[i].sprites[game->enemies[i].frame];
+			}
+		}
+	}
+
+	// Obtener el tiempo actual en milisegundos
+	long current_time = get_current_time_ms();
+
+	// Mover enemigos cada 1000 milisegundos (1 segundo)
+	if (current_time - last_move_time < 1000)
+		return (0);
+	last_move_time = current_time;
+
 	for (int i = 0; i < game->num_enemies; i++)
 	{
-		// Movimiento horizontal o vertical
-		static int move_pattern = 0;
-		move_pattern = (move_pattern + 1) % 2;
+		if (!game->enemies[i].active)
+			continue;
 
-		int old_x = game->enemies[i].pos.x;
-		int old_y = game->enemies[i].pos.y;
+		int next_x = game->enemies[i].pos.x;
+		int next_y = game->enemies[i].pos.y;
 
-		if (move_pattern == 0)
-			game->enemies[i].pos.x += game->enemies[i].direction;
-		else
-			game->enemies[i].pos.y += game->enemies[i].direction;
-
-		// Verificar colisiones y límites
-		if (game->enemies[i].pos.x >= game->enemies[i].patrol_end ||
-			game->enemies[i].pos.x <= game->enemies[i].patrol_start ||
-				game->map[game->enemies[i].pos.y][game->enemies[i].pos.x] == WALL ||
-				game->enemies[i].pos.y < 1 ||
-				game->enemies[i].pos.y >= game->map_height - 1)
+		if (game->enemies[i].type == 1)
 		{
-			game->enemies[i].direction *= -1;
-			game->enemies[i].pos.x = old_x;
-			game->enemies[i].pos.y = old_y;
+			next_x += game->enemies[i].direction;
+
+			if (game->map[next_y][next_x] == WALL || 
+				game->map[next_y][next_x] == EXIT ||
+				check_enemy_collision(game, i, next_x, next_y))
+			{
+				game->enemies[i].direction *= -1;
+				next_x = game->enemies[i].pos.x;  // Volver a la posición original
+			}
 		}
-		
+		else if (game->enemies[i].type == 2)
+		{
+			next_y += game->enemies[i].direction;
+
+			if (game->map[next_y][next_x] == WALL || 
+				game->map[next_y][next_x] == EXIT ||
+				check_enemy_collision(game, i, next_x, next_y))
+			{
+				game->enemies[i].direction *= -1;
+				next_y = game->enemies[i].pos.y;  // Volver a la posición original
+			}
+		}
+
+		if (game->map[next_y][next_x] != WALL && 
+			game->map[next_y][next_x] != EXIT &&
+			!check_enemy_collision(game, i, next_x, next_y))
+		{
+			game->enemies[i].pos.x = next_x;
+			game->enemies[i].pos.y = next_y;
+		}
+
+		// Comprobar colisión con jugador
 		if (game->enemies[i].pos.x == game->player.x &&
 			game->enemies[i].pos.y == game->player.y)
 		{
 			ft_putendl_fd("\n¡Has muerto! Fin del juego.", 1);
 			close_window(game);
-			return;
+			return (0);
 		}
 	}
+
+	render_game(game);  // Actualizar la pantalla después del movimiento
+	return (0);
+}
+
+// Función auxiliar para verificar colisiones entre enemigos
+static int check_enemy_collision(t_game *game, int current_enemy, int x, int y)
+{
+	for (int i = 0; i < game->num_enemies; i++)
+	{
+		if (i != current_enemy && game->enemies[i].active &&
+			game->enemies[i].pos.x == x && game->enemies[i].pos.y == y)
+		{
+			return 1;
+		}
+	}
+	return 0;
 }

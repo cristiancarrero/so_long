@@ -141,8 +141,8 @@ static int	check_walls(t_game *game)
 
 static int is_valid_char(char c)
 {
-	return (c == EMPTY || c == WALL || c == PLAYER ||
-		c == EXIT || c == COLLECT || c == ENEMY);
+	return (c == '0' || c == '1' || c == 'P' || 
+			c == 'E' || c == 'C' || c == 'X' || c == 'N');
 }
 
 static int	check_chars(t_game *game)
@@ -202,24 +202,36 @@ static void	flood_fill(char **map, int x, int y, t_flood *flood, t_game *game)
 	flood_fill(map, x, y - 1, flood, game);
 }
 
-static int	check_rectangular(t_game *game)
+static int check_rectangular(t_game *game)
 {
-	int	i;
-	size_t actual_width;
+	int i;
+	size_t expected_len;
 
-	i = 0;
+	if (!game->map || !game->map[0])
+		return (0);
+
+	// Obtener la longitud esperada de la primera línea
+	expected_len = ft_strlen(game->map[0]);
+	ft_putstr_fd("Longitud esperada: ", 1);
+	ft_putnbr_fd(expected_len, 1);
+	ft_putchar_fd('\n', 1);
+
+	i = 1;
 	while (i < game->map_height)
 	{
-		actual_width = ft_strlen(game->map[i]);
-		while (actual_width > 0 && (game->map[i][actual_width - 1] == ' ' || 
-			game->map[i][actual_width - 1] == '\t' || 
-			game->map[i][actual_width - 1] == '\r'))
-			actual_width--;
-		if (actual_width != (size_t)game->map_width)
+		size_t current_len = ft_strlen(game->map[i]);
+		ft_putstr_fd("Línea ", 1);
+		ft_putnbr_fd(i, 1);
+		ft_putstr_fd(" tiene longitud ", 1);
+		ft_putnbr_fd(current_len, 1);
+		ft_putstr_fd(" (esperada: ", 1);
+		ft_putnbr_fd(expected_len, 1);
+		ft_putstr_fd(")\n", 1);
+
+		if (current_len != expected_len)
 		{
-			ft_putstr_fd("Error: Línea ", 2);
-			ft_putnbr_fd(i, 2);
-			ft_putstr_fd(" tiene longitud incorrecta\n", 2);
+			ft_putendl_fd("Error", 2);
+			ft_putendl_fd("El mapa no es rectangular", 2);
 			return (0);
 		}
 		i++;
@@ -266,7 +278,7 @@ int	validate_map(t_game *game)
 	{
 		for (int x = 0; x < game->map_width; x++)
 		{
-			if (game->map[y][x] == ENEMY)
+			if (game->map[y][x] == 'X' || game->map[y][x] == 'N')
 				game->num_enemies++;
 		}
 	}
@@ -282,13 +294,26 @@ int	validate_map(t_game *game)
 	{
 		for (int x = 0; x < game->map_width; x++)
 		{
-			if (game->map[y][x] == ENEMY)
+			if (game->map[y][x] == 'X')  // Enemigo tipo 1
 			{
 				game->enemies[enemy_index].pos.x = x;
 				game->enemies[enemy_index].pos.y = y;
+				game->enemies[enemy_index].type = 1;
 				game->enemies[enemy_index].direction = 1;
-				game->enemies[enemy_index].patrol_start = x - 2;
-				game->enemies[enemy_index].patrol_end = x + 2;
+				game->enemies[enemy_index].patrol_start = x - 4;
+				game->enemies[enemy_index].patrol_end = x + 4;
+				game->enemies[enemy_index].active = 1;
+				enemy_index++;
+			}
+			else if (game->map[y][x] == 'N')  // Enemigo tipo 2 (animado)
+			{
+				game->enemies[enemy_index].pos.x = x;
+				game->enemies[enemy_index].pos.y = y;
+				game->enemies[enemy_index].type = 2;
+				game->enemies[enemy_index].direction = 1;
+				game->enemies[enemy_index].patrol_start = x - 3;
+				game->enemies[enemy_index].patrol_end = x + 3;
+				game->enemies[enemy_index].active = 1;
 				enemy_index++;
 			}
 		}

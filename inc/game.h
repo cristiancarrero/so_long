@@ -109,6 +109,8 @@ typedef struct s_game
 	int				exit_found;
 	int				player_found;
 	t_game_state	state;
+	t_enemy     *enemies;   // Array de enemigos
+	int         num_enemies; // Número total de enemigos
 }	t_game;
 
 /* Funciones principales */
@@ -141,5 +143,52 @@ void	free_game(t_game *game);
 void	print_error(char *message);
 void	free_map(char **map);
 void	debug_print_images(t_game *game);
+
+#define ANIMATION_SPEED 8
+
+typedef struct s_player {
+    void    *current;           // Sprite actual
+    void    *idle;             // Sprite estático
+    void    *walk_right[3];    // Animación derecha
+    void    *walk_left[3];     // Animación izquierda
+    int     frame;             // Frame actual
+    int     x;
+    int     y;
+    int     is_moving;         // Flag de movimiento
+    int     direction;         // 0 = derecha, 1 = izquierda
+} t_player;
+
+typedef struct s_enemy {
+    void    *sprites[3];    // Cambiado de 2 a 3 para los tres frames
+    void    *current;
+    int     frame;
+    int     x;
+    int     y;
+    int     active;        // Para saber si el enemigo está activo
+} t_enemy;
+
+typedef struct s_door {
+    void    *closed;
+    void    *open;
+    void    *current;
+    int     is_open;
+    int     x;
+    int     y;
+} t_door;
+
+typedef struct s_collectible {
+    void    *sprites[2];
+    void    *current;
+    int     frame;
+    int     x;
+    int     y;
+    int     collected;
+} t_collectible;
+
+void    init_enemies(t_game *game);
+void    init_enemy_textures(t_game *game);
+void    animate_enemies(t_game *game);
+void    render_enemies(t_game *game);
+void    free_enemy_textures(t_game *game);
 
 #endif

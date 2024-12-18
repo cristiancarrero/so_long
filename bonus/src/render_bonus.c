@@ -73,6 +73,37 @@ void	*scale_image(t_game *game, void *original, float scale)
 	return (new_img);
 }
 
+void	render_enemies(t_game *game)
+{
+	int pos_x, pos_y;
+	int *buffer_data;
+	int bpp, size_line, endian;
+
+	if (!game->enemies || game->num_enemies <= 0)
+		return;
+
+	buffer_data = (int *)mlx_get_data_addr(game->back_buffer, &bpp, &size_line, &endian);
+
+	for (int i = 0; i < game->num_enemies; i++)
+	{
+		if (game->enemies[i].active && game->enemies[i].current)
+		{
+			pos_x = game->enemies[i].pos.x * TILE_SIZE * game->scale_x;
+			pos_y = game->enemies[i].pos.y * TILE_SIZE * game->scale_y;
+
+			// Dibujar el enemigo en el buffer
+			put_image_to_buffer(
+				buffer_data,
+				game->enemies[i].current,
+				pos_x,
+				pos_y,
+				game->window_width,
+				game->scale_x
+			);
+		}
+	}
+}
+
 int	render_game(t_game *game)
 {
 	ft_putendl_fd("\n=== Iniciando render_game ===", 1);
@@ -230,30 +261,8 @@ int	render_game(t_game *game)
 		y++;
 	}
 
-	// Mostrar el buffer actualizado con los enemigos
-	mlx_put_image_to_window(game->mlx, game->win, game->back_buffer, 0, 0);
-	ft_putendl_fd("Buffer mostrado", 1);
-
-	// Renderizar enemigos en el buffer antes de mostrarlo
-	if (game->img_enemy)  // Verificar que la imagen del enemigo existe
-	{
-		ft_putendl_fd("Iniciando renderizado de enemigos...", 1);
-		for (int i = 0; i < game->num_enemies; i++)
-		{
-			ft_putstr_fd("Renderizando enemigo ", 1);
-			ft_putnbr_fd(i, 1);
-			ft_putchar_fd('\n', 1);
-			int pos_x = offset_x + game->enemies[i].pos.x * TILE_SIZE * game->scale_x;
-			int pos_y = offset_y + game->enemies[i].pos.y * TILE_SIZE * game->scale_y;
-			// Dibujar el suelo primero
-			put_image_to_buffer(buffer_data, game->img_floor, pos_x, pos_y,
-				game->window_width, game->scale_x);
-			// Luego dibujar el enemigo
-			put_image_to_buffer(buffer_data, game->img_enemy, pos_x, pos_y,
-				game->window_width, game->scale_x);
-		}
-		ft_putendl_fd("Renderizado de enemigos completado", 1);
-	}
+	// Renderizar enemigos después del mapa pero antes del jugador
+	render_enemies(game);
 
 	// Mostrar el buffer actualizado con los enemigos
 	mlx_put_image_to_window(game->mlx, game->win, game->back_buffer, 0, 0);

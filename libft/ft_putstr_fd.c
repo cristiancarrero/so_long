@@ -13,17 +13,11 @@
 #include "libft.h"
 #include <unistd.h>
 
-void	ft_putstr_fd(char *str, int fd)
+void	ft_putstr_fd(const char *str, int fd)
 {
-	if (fd < 0)
+	if (!str)
 		return ;
-	if (str == NULL)
-		return ;
-	while (str[0] != '\0')
-	{
-		write(fd, str, 1);
-		str++;
-	}
+	write(fd, str, ft_strlen(str));
 }
 /*
 int	main(void)
