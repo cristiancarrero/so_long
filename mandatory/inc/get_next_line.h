@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: your_login <your_login@student.42.fr>      +#+  +:+       +#+      */
+/*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/01 00:00:00 by your_login        #+#    #+#           */
-/*   Updated: 2024/01/01 00:00:00 by your_login       ###   ########.fr     */
+/*   Created: 2024/01/01 00:00:00 by ccarrero          #+#    #+#             */
+/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,9 @@
 #  define BUFFER_SIZE 42
 # endif
 
-// Function prototypes
 char	*get_next_line(int fd);
-size_t	gnl_strlen(const char *s);
-char	*gnl_strchr(const char *s, int c);
-char	*gnl_strjoin(char *s1, char *s2);
+char	*ft_strjoin_gnl(char *s1, char *s2);
+char	*ft_strchr_gnl(char *s, int c);
+size_t	ft_strlen_gnl(char *s);
 
 #endif 
