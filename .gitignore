@@ -1,1 +1,45 @@
-minilibx-linux
+# Object files
+obj/
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Executables
+so_long
+so_long_bonus
+
+# Debug files
+*.dSYM/
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# MLX related
+minilibx-linux/
+
+# Build artifacts
+*.log
+*.tmp
+
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Project specific
+maps/bonus/
+textures/bonus/

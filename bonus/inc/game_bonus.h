@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GAME_H
-# define GAME_H
+#ifndef GAME_BONUS_H
+# define GAME_BONUS_H
 
-# include "../minilibx-linux/mlx.h"
+# include "../../minilibx-linux/mlx.h"
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
@@ -35,6 +35,7 @@
 # define EXIT 'E'
 # define COLLECT 'C'
 # define ENEMY 'X'
+# define ENEMY2 'N'
 
 /* Mensajes de error */
 # define ERR_ARGS "Error\nUso: ./so_long <mapa.ber>"
@@ -63,21 +64,24 @@
 
 /* Máscaras de eventos */
 # define KeyPressMask (1L<<0)
+# define KeyReleaseMask (1L<<1)
 # define StructureNotifyMask (1L<<17)
 # define NoEventMask 0L
 
 /* Rutas de sprites */
-# define SPRITE_PLAYER "bonus/textures/player/player.xpm"
-# define SPRITE_WALL "bonus/textures/wall.xpm"
-# define SPRITE_FLOOR "bonus/textures/floor.xpm"
-# define SPRITE_COLLECT "bonus/textures/collect.xpm"
-# define SPRITE_EXIT "bonus/textures/Door/exit.xpm"
+# define SPRITE_PLAYER "textures/mandatory/player/player.xpm"
+# define SPRITE_WALL "textures/bonus/wall.xpm"
+# define SPRITE_FLOOR "textures/bonus/floor.xpm"
+# define SPRITE_COLLECT "textures/bonus/collect/collect.xpm"
+# define SPRITE_EXIT "textures/bonus/door/exit.xpm"
 
 /* Rutas de enemigos */
-# define SPRITE_ENEMY1 "bonus/textures/enemy1/enemy1.xpm"    // Enemigo estático
-# define SPRITE_ENEMY2_1 "bonus/textures/enemy2/enemy1.xpm"  // Enemigo animado frame 1
-# define SPRITE_ENEMY2_2 "bonus/textures/enemy2/enemy2.xpm"  // Enemigo animado frame 2
-# define SPRITE_ENEMY2_3 "bonus/textures/enemy2/enemy3.xpm"  // Enemigo animado frame 3
+# define SPRITE_ENEMY1 "textures/bonus/enemy/enemy1.xpm"  // Enemigo tipo 1
+# define SPRITE_ENEMY2 "textures/bonus/enemy/enemy2.xpm"  // Enemigo tipo 1
+# define SPRITE_ENEMY3 "textures/bonus/enemy/enemy3.xpm"  // Enemigo tipo 1
+# define SPRITE_ENEMY2_1 "textures/bonus/enemy2/enemy1.xpm"  // Enemigo tipo 2 (hongo)
+# define SPRITE_ENEMY2_2 "textures/bonus/enemy2/enemy2.xpm"  // Enemigo tipo 2 (hongo)
+# define SPRITE_ENEMY2_3 "textures/bonus/enemy2/enemy3.xpm"  // Enemigo tipo 2 (hongo)
 
 /* Configuración de animaciones */
 # define ANIM_DELAY 100    // Delay entre frames en milisegundos
@@ -86,9 +90,15 @@
 
 /* Niveles */
 # define MAX_LEVELS 3
-# define LEVEL1_PATH "maps/map1.ber"
-# define LEVEL2_PATH "maps/map2.ber"
-# define LEVEL3_PATH "maps/map3.ber"
+# define LEVEL1_PATH "maps/bonus/map1.ber"
+# define LEVEL2_PATH "maps/bonus/map2.ber"
+# define LEVEL3_PATH "maps/bonus/map3.ber"
+
+/* Mensajes del juego */
+# define WIN_MSG "¡Has ganado!"
+# define LOSE_MSG "¡Has perdido!"
+# define MOVES_MSG "Movimientos: "
+# define COLLECT_MSG "Coleccionables: "
 
 typedef struct s_position
 {
@@ -117,7 +127,7 @@ typedef enum e_game_state {
     STATE_MENU,
     STATE_PLAYING,
     STATE_PAUSED,
-    STATE_WIN,
+    STATE_VICTORY,
     STATE_LOSE
 } t_game_state;
 
@@ -130,15 +140,24 @@ typedef struct s_sound {
 typedef struct s_enemy
 {
 	t_position pos;
-	int direction;  // 1 para derecha, -1 para izquierda
-	int patrol_start;   // Punto inicial de patrulla
-	int patrol_end;     // Punto final de patrulla
+	int direction;  // 0: arriba, 1: derecha, 2: abajo, 3: izquierda
+	int patrol_start;   // Usado para guardar la posición X del bloque
+	int patrol_end;     // Usado para guardar la posición Y del bloque
 	void *current;      // Sprite actual
 	void *sprites[3];   // Array para animación
-	int type;          // 1 para tipo X, 2 para tipo N
+	int type;          // Tipo de enemigo
 	int frame;         // Frame actual para animación
 	int active;        // Si el enemigo está activo
 } t_enemy;
+
+typedef struct s_player
+{
+    int     x;
+    int     y;
+    int     direction;  // Añadido el campo direction
+    void    *sprite_right;
+    void    *sprite_left;
+} t_player;
 
 typedef struct s_game
 {
@@ -157,7 +176,7 @@ typedef struct s_game
 	void		*img_player;
 	void		*img_collect;
 	void		*img_exit;
-	t_position	player;
+	t_player	player;
 	int			collectibles;
 	int			collected;
 	int			moves;
@@ -180,6 +199,7 @@ typedef struct s_game
 /* Funciones principales */
 int		init_game(t_game *game);
 int		load_game(t_game *game, char *map_path);
+int		load_next_level(t_game *game);
 int		game_loop(void *param);
 
 /* Funciones de mapa */
@@ -203,10 +223,10 @@ void		free_animation(t_game *game, t_animation *anim);
 
 /* Funciones de eventos */
 int		key_press(int keycode, t_game *game);
-int		close_window(t_game *game);
-int			window_resize(int width, int height, void *param);
+int		window_resize(int width, int height, void *param);
 void	move_player(t_game *game, int new_x, int new_y);
 void	setup_hooks(t_game *game);
+int		check_collision(t_game *game, int x, int y);
 
 /* Funciones de enemigos */
 int     move_enemies(void *param);
@@ -220,5 +240,9 @@ void	debug_print_images(t_game *game);
 
 /* Funciones de utilidad */
 int     error_handler(char *message);
+
+/* Funciones de limpieza */
+int     close_window(t_game *game);
+void    free_game(t_game *game);
 
 #endif

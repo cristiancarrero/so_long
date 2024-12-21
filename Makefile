@@ -10,95 +10,88 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME        = so_long
-NAME_BONUS  = so_long_bonus
-CC          = gcc
-CFLAGS      = -Wall -Wextra -Werror -I$(INC_DIR) -I$(LIBFT_DIR)
-MLX_FLAGS   = -lmlx -lXext -lX11
+# Colors
+GREEN		= \033[0;32m
+RED			= \033[0;31m
+RESET		= \033[0m
 
-# Directorios
-SRC_DIR     = src/
-BONUS_DIR   = bonus/src/
-OBJ_DIR     = obj/
-OBJ_BONUS_DIR = obj_bonus/
-INC_DIR     = inc/
-LIBFT_DIR   = libft/
+# Names
+NAME		= so_long
+NAME_BONUS	= so_long_bonus
+LIBFT		= libft.a
 
-# Libft
-LIBFT       = $(LIBFT_DIR)libft.a
+# Directories
+LIBFT_DIR	= libft
+MLX_DIR		= minilibx-linux
+OBJ_DIR		= obj
 
-# Archivos fuente principales
-SRC_FILES   = main.c \
-              init.c \
-              map.c \
-              render.c \
-              events.c \
-              utils.c
+# Compiler and flags
+CC			= gcc
+CFLAGS		= -Wall -Wextra -Werror
+MLX_FLAGS	= -L$(MLX_DIR) -lmlx -lXext -lX11 -lm
+RM			= rm -f
 
-# Archivos bonus
-BONUS_FILES = main_bonus.c \
-              init_bonus.c \
-              map_bonus.c \
-              render_bonus.c \
-              events_bonus.c \
-              game_loop_bonus.c \
-              animation_bonus.c \
-              utils_bonus.c
+# Mandatory sources
+SRCS		= mandatory/src/core/main.c \
+			  mandatory/src/core/init.c \
+			  mandatory/src/core/cleanup.c \
+			  mandatory/src/core/game_loop.c \
+			  mandatory/src/map/parser.c \
+			  mandatory/src/map/validation.c \
+			  mandatory/src/graphics/render.c \
+			  mandatory/src/graphics/animations.c \
+			  mandatory/src/gameplay/player.c \
+			  mandatory/src/utils/error.c \
+			  mandatory/src/utils/events.c
 
-SRCS        = $(addprefix $(SRC_DIR), $(SRC_FILES))
-BONUS_SRCS  = $(addprefix $(BONUS_DIR), $(BONUS_FILES))
-OBJS        = $(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
-BONUS_OBJS  = $(addprefix $(OBJ_BONUS_DIR), $(BONUS_FILES:.c=.o))
+# Bonus sources
+BONUS_SRCS	= bonus/src/core/main_bonus.c \
+			  bonus/src/core/init_bonus.c \
+			  bonus/src/core/game_loop_bonus.c \
+			  bonus/src/core/cleanup_bonus.c \
+			  bonus/src/gameplay/player_bonus.c \
+			  bonus/src/graphics/animation_bonus.c \
+			  bonus/src/graphics/render_bonus.c \
+			  bonus/src/map/map_bonus.c \
+			  bonus/src/utils/events_bonus.c \
+			  bonus/src/utils/utils_bonus.c
 
-# Flags de inclusión actualizados para bonus
-BONUS_FLAGS = -I$(INC_DIR) -I$(LIBFT_DIR) -I$(BONUS_DIR)/../inc
+# Objects
+OBJS		= $(SRCS:%.c=$(OBJ_DIR)/%.o)
+BONUS_OBJS	= $(BONUS_SRCS:%.c=$(OBJ_DIR)/%.o)
 
-# Reglas
-all: $(LIBFT) $(NAME)
+# Rules
+all: $(LIBFT_DIR)/$(LIBFT) $(NAME)
 
-$(LIBFT):
-	@echo "Compilando libft..."
-	@make -C $(LIBFT_DIR)
+bonus: $(LIBFT_DIR)/$(LIBFT) $(NAME_BONUS)
 
 $(NAME): $(OBJS)
-	@echo "Compilando so_long..."
-	$(CC) $(OBJS) $(LIBFT) $(MLX_FLAGS) -o $(NAME)
+	@echo "$(GREEN)Compilando $(NAME)...$(RESET)"
+	@$(CC) $(OBJS) -L$(LIBFT_DIR) -lft $(MLX_FLAGS) -o $(NAME)
+	@echo "$(GREEN)¡$(NAME) compilado!$(RESET)"
 
 $(NAME_BONUS): $(BONUS_OBJS)
-	@echo "Compilando so_long bonus..."
-	$(CC) $(BONUS_OBJS) $(LIBFT) $(MLX_FLAGS) $(BONUS_FLAGS) -o $(NAME_BONUS)
+	@echo "$(GREEN)Compilando $(NAME_BONUS)...$(RESET)"
+	@$(CC) $(BONUS_OBJS) -L$(LIBFT_DIR) -lft $(MLX_FLAGS) -o $(NAME_BONUS)
+	@echo "$(GREEN)¡$(NAME_BONUS) compilado!$(RESET)"
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(LIBFT_DIR)/$(LIBFT):
+	@make -C $(LIBFT_DIR)
 
-$(OBJ_BONUS_DIR)%.o: $(BONUS_DIR)%.c
-	@mkdir -p $(OBJ_BONUS_DIR)
-	$(CC) $(CFLAGS) $(BONUS_FLAGS) -c $< -o $@
-
-.bonus: fclean $(LIBFT)
-	@echo "Compilando bonus..."
-	@mkdir -p $(OBJ_BONUS_DIR)
-	@$(MAKE) $(NAME_BONUS)
-
-bonus: .bonus
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -I./mandatory/inc -I./bonus/inc -I$(LIBFT_DIR) -I$(MLX_DIR) -c $< -o $@
 
 clean:
-	@echo "Limpiando objetos..."
-	@rm -rf $(OBJ_DIR)
-	@rm -rf $(OBJ_BONUS_DIR)
-	@rm -f .bonus
+	@$(RM) -r $(OBJ_DIR)
 	@make -C $(LIBFT_DIR) clean
+	@echo "$(RED)Objetos eliminados$(RESET)"
 
 fclean: clean
-	@echo "Limpiando ejecutables..."
-	@rm -f $(NAME)
-	@rm -f $(NAME_BONUS)
-	@rm -rf obj_bonus/
+	@$(RM) $(NAME) $(NAME_BONUS)
 	@make -C $(LIBFT_DIR) fclean
+	@echo "$(RED)Ejecutables eliminados$(RESET)"
 
 re: fclean all
 
-rebonus: fclean bonus
-
-.PHONY: all bonus clean fclean re rebonus
+.PHONY: all bonus clean fclean re

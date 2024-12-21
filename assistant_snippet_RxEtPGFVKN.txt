@@ -1,0 +1,4 @@
+1|1|ls -la hackeo.py
+2|2|id
+3|3|pwd
+4|4|ls -la 
