@@ -24,6 +24,8 @@
 
 # define TILE_SIZE 64
 # define BUFFER_SIZE 1
+# define MAX_MAP_WIDTH 50
+# define MAX_MAP_HEIGHT 30
 
 typedef struct s_img
 {
@@ -109,6 +111,7 @@ int			check_path(t_game *game);
 int			check_characters(t_game *game);
 int			check_walls(t_game *game);
 int			check_rectangular(t_game *game);
+int			check_map_size_and_chars(t_game *game);
 int			read_map(char *file_path, t_game *game);
 
 // Cleanup functions

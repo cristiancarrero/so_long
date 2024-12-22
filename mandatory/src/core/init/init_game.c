@@ -30,6 +30,8 @@ int	init_game(t_game *game, char *map_path)
 {
 	if (!read_map(map_path, game))
 		return (0);
+	if (!check_map_size_and_chars(game))
+		return (0);
 	if (!check_rectangular(game))
 		return (0);
 	if (!check_walls(game))

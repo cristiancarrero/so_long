@@ -28,6 +28,28 @@ static int	handle_move_to_exit(t_game *game)
 	return (0);
 }
 
+static void	handle_collectible(t_game *game)
+{
+	game->collected++;
+	ft_putstr_fd("Coleccionable recogido. Total: ", 1);
+	ft_putnbr_fd(game->collected, 1);
+	ft_putstr_fd("/", 1);
+	ft_putnbr_fd(game->collectibles, 1);
+	ft_putstr_fd("\n", 1);
+}
+
+static void	update_position(t_game *game, int new_x, int new_y)
+{
+	game->map[game->player_y][game->player_x] = '0';
+	game->map[new_y][new_x] = 'P';
+	game->player_x = new_x;
+	game->player_y = new_y;
+	game->moves++;
+	ft_putstr_fd("Movimientos: ", 1);
+	ft_putnbr_fd(game->moves, 1);
+	ft_putstr_fd("\n", 1);
+}
+
 int	move_player(t_game *game, int new_x, int new_y)
 {
 	char	next_pos;
@@ -41,18 +63,7 @@ int	move_player(t_game *game, int new_x, int new_y)
 	if (next_pos == 'E')
 		return (handle_move_to_exit(game));
 	if (next_pos == 'C')
-	{
-		game->collected++;
-		ft_putstr_fd("Coleccionable recogido. Total: ", 1);
-		ft_putnbr_fd(game->collected, 1);
-		ft_putstr_fd("/", 1);
-		ft_putnbr_fd(game->collectibles, 1);
-		ft_putstr_fd("\n", 1);
-	}
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
-	game->moves++;
+		handle_collectible(game);
+	update_position(game, new_x, new_y);
 	return (1);
 }

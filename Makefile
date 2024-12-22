@@ -29,6 +29,7 @@ SRC_FILES	= main.c \
 			  core/init/init_game.c \
 			  core/init/map_utils.c \
 			  core/init/map_checks.c \
+			  core/init/map_validation.c \
 			  core/init_img.c \
 			  core/load_textures.c \
 			  core/textures/load_player_textures.c \
