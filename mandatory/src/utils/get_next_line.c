@@ -103,4 +103,4 @@ char	*get_next_line(int fd)
 	line = get_line(buffer);
 	buffer = update_buffer(buffer);
 	return (line);
-} 
+}

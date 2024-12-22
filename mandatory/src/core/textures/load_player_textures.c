@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   load_player_textures.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,33 +10,26 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/so_long.h"
+#include "../../../inc/so_long.h"
 
-void	print_error(char *message)
+int	load_player_textures(t_game *game)
 {
-	ft_putstr_fd("Error\n", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
-}
+	const char	*texture_path;
 
-int	is_valid_move(t_game *game, int new_x, int new_y)
-{
-	int	valid_x;
-	int	valid_y;
-
-	valid_x = (new_x >= 0 && new_x < game->map_width);
-	valid_y = (new_y >= 0 && new_y < game->map_height);
-	if (!valid_x || !valid_y)
+	texture_path = find_texture_path("player/player.xpm");
+	if (!texture_path)
 		return (0);
-	if (game->map[new_y][new_x] == '1')
+	game->player.img = mlx_xpm_file_to_image(game->mlx,
+			(char *)texture_path,
+			&game->player.width,
+			&game->player.height);
+	if (!game->player.img)
+		return (0);
+	game->player.addr = mlx_get_data_addr(game->player.img,
+			&game->player.bits_per_pixel,
+			&game->player.line_length,
+			&game->player.endian);
+	if (!game->player.addr)
 		return (0);
 	return (1);
-}
-
-void	update_player_position(t_game *game, int new_x, int new_y)
-{
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
 }

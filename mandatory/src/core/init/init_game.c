@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   init_game.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,33 +10,31 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/so_long.h"
+#include "../../../inc/so_long.h"
 
-void	print_error(char *message)
+static int	init_game_vars(t_game *game)
 {
-	ft_putstr_fd("Error\n", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
-}
-
-int	is_valid_move(t_game *game, int new_x, int new_y)
-{
-	int	valid_x;
-	int	valid_y;
-
-	valid_x = (new_x >= 0 && new_x < game->map_width);
-	valid_y = (new_y >= 0 && new_y < game->map_height);
-	if (!valid_x || !valid_y)
-		return (0);
-	if (game->map[new_y][new_x] == '1')
-		return (0);
+	game->collected = 0;
+	game->moves = 0;
+	game->is_facing_left = 0;
+	init_img(&game->player);
+	init_img(&game->wall);
+	init_img(&game->floor);
+	init_img(&game->collect);
+	init_img(&game->exit);
+	init_img(&game->buffer);
 	return (1);
 }
 
-void	update_player_position(t_game *game, int new_x, int new_y)
+int	init_game(t_game *game, char *map_path)
 {
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
+	if (!read_map(map_path, game))
+		return (0);
+	if (!check_rectangular(game))
+		return (0);
+	if (!check_walls(game))
+		return (0);
+	if (!check_characters(game))
+		return (0);
+	return (init_game_vars(game));
 }

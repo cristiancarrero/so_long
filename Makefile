@@ -12,7 +12,7 @@
 
 NAME		= so_long
 CC			= gcc
-CFLAGS		= -Wall -Wextra -Werror
+CFLAGS		= -Wall -Wextra -Werror -g
 RM			= rm -f
 MLX_FLAGS	= -L./minilibx-linux -lmlx -lXext -lX11 -lm
 
@@ -25,14 +25,27 @@ MLX_DIR		= minilibx-linux
 
 # Archivos fuente
 SRC_FILES	= main.c \
-			  core/init_mlx.c \
-			  core/init_game.c \
+			  core/init/init_mlx.c \
+			  core/init/init_game.c \
+			  core/init/map_utils.c \
+			  core/init/map_checks.c \
+			  core/init_img.c \
+			  core/load_textures.c \
+			  core/textures/load_player_textures.c \
+			  core/textures/load_collect_exit.c \
+			  core/textures/load_wall_floor.c \
 			  graphics/render.c \
+			  graphics/render_tile.c \
+			  graphics/render_hud.c \
+			  graphics/render_hud_utils.c \
+			  graphics/render_utils.c \
 			  utils/cleanup.c \
 			  utils/events.c \
+			  utils/movement.c \
 			  utils/error.c \
 			  utils/get_next_line.c \
 			  utils/get_next_line_utils.c \
+			  utils/texture_utils.c \
 			  utils/img_utils.c
 
 SRCS		= $(addprefix $(SRC_DIR)/, $(SRC_FILES))

@@ -12,47 +12,45 @@
 
 #include "../../inc/so_long.h"
 
-static void	free_map(t_game *game)
+void	cleanup_map(char **map)
 {
 	int	i;
 
-	if (!game->map)
+	if (!map)
 		return ;
 	i = 0;
-	while (i < game->map_height)
+	while (map[i])
 	{
-		if (game->map[i])
-			free(game->map[i]);
+		free(map[i]);
 		i++;
 	}
-	free(game->map);
-	game->map = NULL;
+	free(map);
 }
 
 static void	destroy_images(t_game *game)
 {
-	if (game->floor.img)
-		mlx_destroy_image(game->mlx, game->floor.img);
+	if (!game->mlx)
+		return ;
+	if (game->buffer.img)
+		mlx_destroy_image(game->mlx, game->buffer.img);
 	if (game->wall.img)
 		mlx_destroy_image(game->mlx, game->wall.img);
+	if (game->floor.img)
+		mlx_destroy_image(game->mlx, game->floor.img);
 	if (game->player.img)
 		mlx_destroy_image(game->mlx, game->player.img);
-	if (game->player_left.img)
-		mlx_destroy_image(game->mlx, game->player_left.img);
 	if (game->collect.img)
 		mlx_destroy_image(game->mlx, game->collect.img);
 	if (game->exit.img)
 		mlx_destroy_image(game->mlx, game->exit.img);
-	if (game->buffer.img)
-		mlx_destroy_image(game->mlx, game->buffer.img);
 }
 
 void	cleanup_game(t_game *game)
 {
 	if (!game)
 		return ;
+	cleanup_map(game->map);
 	destroy_images(game);
-	free_map(game);
 	if (game->win && game->mlx)
 		mlx_destroy_window(game->mlx, game->win);
 	if (game->mlx)
@@ -60,10 +58,4 @@ void	cleanup_game(t_game *game)
 		mlx_destroy_display(game->mlx);
 		free(game->mlx);
 	}
-}
-
-void	close_game(t_game *game)
-{
-	cleanup_game(game);
-	exit(0);
 }

@@ -13,30 +13,17 @@
 #ifndef SO_LONG_H
 # define SO_LONG_H
 
-# include "../../libft/libft.h"
-# include "../../minilibx-linux/mlx.h"
-# include "get_next_line.h"
+# include "../libft/libft.h"
+# include "../minilibx-linux/mlx.h"
+# include <X11/X.h>
+# include <X11/keysym.h>
 # include <fcntl.h>
+# include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 
 # define TILE_SIZE 64
-
-# define KEY_ESC 65307
-# define KEY_W 119
-# define KEY_A 97
-# define KEY_S 115
-# define KEY_D 100
-# define KEY_UP 65362
-# define KEY_LEFT 65361
-# define KEY_DOWN 65364
-# define KEY_RIGHT 65363
-
-typedef struct s_point
-{
-	int	x;
-	int	y;
-}	t_point;
+# define BUFFER_SIZE 1
 
 typedef struct s_img
 {
@@ -47,7 +34,7 @@ typedef struct s_img
 	int		endian;
 	int		width;
 	int		height;
-}	t_img;
+}			t_img;
 
 typedef struct s_game
 {
@@ -58,38 +45,87 @@ typedef struct s_game
 	int		map_height;
 	int		collectibles;
 	int		collected;
-	int		exit_count;
 	int		moves;
+	int		player_x;
+	int		player_y;
 	int		is_facing_left;
-	t_point	player_pos;
-	t_img	floor;
-	t_img	wall;
 	t_img	player;
-	t_img	player_left;
+	t_img	wall;
+	t_img	floor;
 	t_img	collect;
 	t_img	exit;
 	t_img	buffer;
-}	t_game;
+}			t_game;
+
+typedef struct s_copy_params
+{
+	t_img	*img;
+	int		x;
+	int		y;
+	int		is_player;
+}			t_copy_params;
+
+typedef struct s_check_params
+{
+	int	x;
+	int	y;
+	int	width;
+	int	height;
+}	t_check_params;
+
+typedef struct s_count_params
+{
+	int	*player;
+	int	*exit;
+	int	i;
+	int	j;
+}	t_count_params;
 
 // Core functions
-void	init_game(t_game *game);
-int		load_textures(t_game *game);
+int			init_mlx(t_game *game);
+void		init_img(t_img *img);
+int			init_game(t_game *game, char *map_path);
+int			load_textures(t_game *game);
+int			load_player_textures(t_game *game);
+int			load_collect_textures(t_game *game);
+int			load_exit_textures(t_game *game);
+int			load_wall_floor_textures(t_game *game);
 
-// Map functions
-int		parse_map(char *file_path, t_game *game);
-int		validate_map(t_game *game);
+// Graphics functions
+int			render_frame(t_game *game);
+void		render_tile(t_game *game, int x, int y);
+void		copy_image_to_buffer(t_game *game, t_copy_params params);
+void		render_hud(t_game *game);
+void		render_button_background(t_game *game, int x, int y, int width);
 
-// Event functions
-int		handle_keypress(int keycode, t_game *game);
-int		handle_window_close(t_game *game);
+// Event handling
+int			handle_keypress(int keysym, t_game *game);
+int			handle_close(t_game *game);
+int			move_player(t_game *game, int new_x, int new_y);
 
-// Render functions
-void	render_map(t_game *game);
-int		render_frame(t_game *game);
+// Map validation and loading
+int			validate_map(t_game *game);
+int			check_path(t_game *game);
+int			check_characters(t_game *game);
+int			check_walls(t_game *game);
+int			check_rectangular(t_game *game);
+int			read_map(char *file_path, t_game *game);
 
-// Utility functions
-void	print_error(char *message);
-void	cleanup_game(t_game *game);
-void	close_game(t_game *game);
+// Cleanup functions
+void		cleanup_game(t_game *game);
+void		cleanup_map(char **map);
+void		cleanup_images(t_game *game);
 
-#endif 
+// Error handling
+void		print_error(char *message);
+void		print_error_and_exit(char *message);
+
+// File reading
+char		*get_next_line(int fd);
+
+// Texture utils
+const char	*find_texture_path(const char *base_name);
+
+void		close_game(t_game *game);
+
+#endif

@@ -25,4 +25,4 @@ char	*ft_strjoin_gnl(char *s1, char *s2);
 char	*ft_strchr_gnl(char *s, int c);
 size_t	ft_strlen_gnl(char *s);
 
-#endif 
+#endif

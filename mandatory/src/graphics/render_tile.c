@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   render_tile.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,31 +12,42 @@
 
 #include "../../inc/so_long.h"
 
-void	print_error(char *message)
+static void	render_floor(t_game *game, int x, int y)
 {
-	ft_putstr_fd("Error\n", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
+	t_copy_params	params;
+
+	params.x = x;
+	params.y = y;
+	params.is_player = 0;
+	params.img = &game->floor;
+	copy_image_to_buffer(game, params);
 }
 
-int	is_valid_move(t_game *game, int new_x, int new_y)
+static void	render_object(t_game *game, int x, int y, char tile)
 {
-	int	valid_x;
-	int	valid_y;
+	t_copy_params	params;
 
-	valid_x = (new_x >= 0 && new_x < game->map_width);
-	valid_y = (new_y >= 0 && new_y < game->map_height);
-	if (!valid_x || !valid_y)
-		return (0);
-	if (game->map[new_y][new_x] == '1')
-		return (0);
-	return (1);
+	params.x = x;
+	params.y = y;
+	params.is_player = (tile == 'P');
+	if (tile == '1')
+		params.img = &game->wall;
+	else if (tile == 'P')
+		params.img = &game->player;
+	else if (tile == 'C')
+		params.img = &game->collect;
+	else if (tile == 'E')
+		params.img = &game->exit;
+	else
+		return ;
+	copy_image_to_buffer(game, params);
 }
 
-void	update_player_position(t_game *game, int new_x, int new_y)
+void	render_tile(t_game *game, int x, int y)
 {
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
+	char	tile;
+
+	tile = game->map[y][x];
+	render_floor(game, x, y);
+	render_object(game, x, y, tile);
 }

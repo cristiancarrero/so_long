@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   texture_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,31 +12,18 @@
 
 #include "../../inc/so_long.h"
 
-void	print_error(char *message)
+const char	*find_texture_path(const char *base_name)
 {
-	ft_putstr_fd("Error\n", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
-}
+	static char	path[1024];
 
-int	is_valid_move(t_game *game, int new_x, int new_y)
-{
-	int	valid_x;
-	int	valid_y;
-
-	valid_x = (new_x >= 0 && new_x < game->map_width);
-	valid_y = (new_y >= 0 && new_y < game->map_height);
-	if (!valid_x || !valid_y)
-		return (0);
-	if (game->map[new_y][new_x] == '1')
-		return (0);
-	return (1);
-}
-
-void	update_player_position(t_game *game, int new_x, int new_y)
-{
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
+	ft_strlcpy(path, "./textures/mandatory/", sizeof(path));
+	ft_strlcat(path, base_name, sizeof(path));
+	if (access(path, F_OK) != 0)
+	{
+		ft_putstr_fd("Error: No se encuentra la textura en: ", 1);
+		ft_putstr_fd(path, 1);
+		ft_putstr_fd("\n", 1);
+		return (NULL);
+	}
+	return (path);
 }

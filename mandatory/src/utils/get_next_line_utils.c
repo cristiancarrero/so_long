@@ -67,4 +67,4 @@ char	*ft_strjoin_gnl(char *s1, char *s2)
 	str[i] = '\0';
 	free(s1);
 	return (str);
-} 
+}

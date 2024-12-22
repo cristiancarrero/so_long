@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   init_mlx.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,33 +10,33 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/so_long.h"
+#include "../../../inc/so_long.h"
 
-void	print_error(char *message)
+int	init_mlx(t_game *game)
 {
-	ft_putstr_fd("Error\n", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
-}
-
-int	is_valid_move(t_game *game, int new_x, int new_y)
-{
-	int	valid_x;
-	int	valid_y;
-
-	valid_x = (new_x >= 0 && new_x < game->map_width);
-	valid_y = (new_y >= 0 && new_y < game->map_height);
-	if (!valid_x || !valid_y)
+	game->mlx = mlx_init();
+	if (!game->mlx)
 		return (0);
-	if (game->map[new_y][new_x] == '1')
+	game->win = mlx_new_window(game->mlx,
+			game->map_width * TILE_SIZE,
+			game->map_height * TILE_SIZE,
+			"so_long");
+	if (!game->win)
+		return (0);
+	game->buffer.img = mlx_new_image(game->mlx,
+			game->map_width * TILE_SIZE,
+			game->map_height * TILE_SIZE);
+	if (!game->buffer.img)
+		return (0);
+	game->buffer.addr = mlx_get_data_addr(game->buffer.img,
+			&game->buffer.bits_per_pixel,
+			&game->buffer.line_length,
+			&game->buffer.endian);
+	if (!game->buffer.addr)
+		return (0);
+	game->buffer.width = game->map_width * TILE_SIZE;
+	game->buffer.height = game->map_height * TILE_SIZE;
+	if (!load_textures(game))
 		return (0);
 	return (1);
-}
-
-void	update_player_position(t_game *game, int new_x, int new_y)
-{
-	game->map[game->player_y][game->player_x] = '0';
-	game->map[new_y][new_x] = 'P';
-	game->player_x = new_x;
-	game->player_y = new_y;
 }
