@@ -87,6 +87,9 @@ BONUS_FILES	= main_bonus.c \
 			  utils/texture_utils_bonus.c \
 			  utils/img_utils_bonus.c \
 			  utils/enemy_bonus.c \
+			  utils/enemy_render_bonus.c \
+			  utils/enemy_movement_bonus.c \
+			  utils/enemy_tile_bonus.c \
 			  utils/animation_bonus.c
 
 BONUS_SRCS	= $(addprefix $(BONUS_DIR)/, $(BONUS_FILES))

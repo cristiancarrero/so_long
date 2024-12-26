@@ -29,6 +29,7 @@ static char	*get_enemy_texture_path(int frame)
 		"./textures/bonus/enemy2/enemy1.xpm",
 		"./textures/bonus/enemy2/enemy2.xpm"
 	};
+
 	return (paths[frame]);
 }
 
@@ -59,7 +60,7 @@ int	load_enemy_textures(t_game *game)
 				&game->enemy[i].width, &game->enemy[i].height);
 		if (!game->enemy[i].img)
 		{
-			ft_putstr_fd("Error\nNo se pudo cargar la textura del enemigo: ", 2);
+			ft_putstr_fd("Error\nNo se pudo cargar la textura: ", 2);
 			ft_putstr_fd(path, 2);
 			ft_putstr_fd("\n", 2);
 			cleanup_loaded_textures(game, i);
@@ -71,4 +72,4 @@ int	load_enemy_textures(t_game *game)
 		i++;
 	}
 	return (1);
-} 
+}

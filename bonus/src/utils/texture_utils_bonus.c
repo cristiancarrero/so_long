@@ -12,41 +12,48 @@
 
 #include "so_long_bonus.h"
 
-static void	try_texture_path(char *path, const char *base_path, const char *name)
+static char	*try_path(const char *base_path, const char *base_name)
 {
-	ft_strlcpy(path, base_path, 1024);
-	ft_strlcat(path, name, 1024);
-	ft_putstr_fd("Intentando acceder a: ", 1);
-	ft_putstr_fd(path, 1);
-	ft_putstr_fd("\n", 1);
+	char	*full_path;
+	char	*temp;
+
+	temp = ft_strjoin(base_path, base_name);
+	if (!temp)
+		return (NULL);
+	full_path = ft_strjoin(temp, ".xpm");
+	free(temp);
+	if (!full_path)
+		return (NULL);
+	if (access(full_path, F_OK) == 0)
+		return (full_path);
+	free(full_path);
+	return (NULL);
 }
 
 const char	*find_texture_path(const char *base_name)
 {
-	static char	path[1024];
-	const char	*paths[] = {
+	static char	*paths[] = {
 		"./textures/bonus/",
+		"./textures/bonus/collect/",
+		"./textures/bonus/door/",
 		"./textures/mandatory/",
-		"./bonus/textures/",
 		NULL
 	};
+	char		*result;
 	int			i;
+	static char	last_path[256];
 
 	i = 0;
 	while (paths[i])
 	{
-		try_texture_path(path, paths[i], base_name);
-		if (access(path, F_OK) == 0)
+		result = try_path(paths[i], base_name);
+		if (result)
 		{
-			ft_putstr_fd("Textura encontrada en: ", 1);
-			ft_putstr_fd(path, 1);
-			ft_putstr_fd("\n", 1);
-			return (path);
+			ft_strlcpy(last_path, result, sizeof(last_path));
+			free(result);
+			return (last_path);
 		}
 		i++;
 	}
-	ft_putstr_fd("Error: No se encuentra la textura en ninguna ruta: ", 1);
-	ft_putstr_fd(base_name, 1);
-	ft_putstr_fd("\n", 1);
 	return (NULL);
 }

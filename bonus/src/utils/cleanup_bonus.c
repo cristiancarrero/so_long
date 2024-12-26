@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cleanup.c                                          :+:      :+:    :+:   */
+/*   cleanup_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -27,31 +27,42 @@ void	cleanup_map(char **map)
 	free(map);
 }
 
-static void	destroy_images(t_game *game)
+void	cleanup_images(t_game *game)
 {
-	if (!game->mlx)
+	int	i;
+
+	if (!game || !game->mlx)
 		return ;
-	if (game->buffer.img)
-		mlx_destroy_image(game->mlx, game->buffer.img);
 	if (game->wall.img)
 		mlx_destroy_image(game->mlx, game->wall.img);
 	if (game->floor.img)
 		mlx_destroy_image(game->mlx, game->floor.img);
-	if (game->player.img)
-		mlx_destroy_image(game->mlx, game->player.img);
 	if (game->collect.img)
 		mlx_destroy_image(game->mlx, game->collect.img);
 	if (game->exit.img)
 		mlx_destroy_image(game->mlx, game->exit.img);
+	if (game->player.img)
+		mlx_destroy_image(game->mlx, game->player.img);
+	if (game->player_left.img)
+		mlx_destroy_image(game->mlx, game->player_left.img);
+	i = 0;
+	while (i < ANIMATION_FRAMES)
+	{
+		if (game->enemy[i].img)
+			mlx_destroy_image(game->mlx, game->enemy[i].img);
+		i++;
+	}
+	if (game->buffer.img)
+		mlx_destroy_image(game->mlx, game->buffer.img);
+	if (game->hud_bg.img)
+		mlx_destroy_image(game->mlx, game->hud_bg.img);
 }
 
 void	cleanup_game(t_game *game)
 {
-	if (!game)
-		return ;
+	cleanup_images(game);
 	cleanup_map(game->map);
-	destroy_images(game);
-	if (game->win && game->mlx)
+	if (game->win)
 		mlx_destroy_window(game->mlx, game->win);
 	if (game->mlx)
 	{

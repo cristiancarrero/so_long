@@ -106,14 +106,22 @@ typedef struct s_count_params
 	int	j;
 }	t_count_params;
 
+typedef struct s_tile_params
+{
+	t_game	*game;
+	int		i;
+	int		x;
+	int		y;
+	char	tile_type;
+}			t_tile_params;
+
 // Core functions
 int			init_mlx(t_game *game);
 void		init_img(t_img *img);
 int			init_game(t_game *game, char *map_path);
 int			load_textures(t_game *game);
 int			load_player_textures(t_game *game);
-int			load_collect_textures(t_game *game);
-int			load_exit_textures(t_game *game);
+int			load_collect_exit_textures(t_game *game);
 int			load_wall_floor_textures(t_game *game);
 
 // Graphics functions
@@ -164,6 +172,8 @@ void		init_enemies(t_game *game);
 void		update_enemies(t_game *game);
 int			check_enemy_collision(t_game *game, int x, int y);
 void		render_enemies(t_game *game);
+void		set_enemy_tile(t_tile_params *params);
+void		update_enemy_position(t_game *game, int i, int new_x, int new_y);
 
 // Animation functions
 void		update_animation(t_game *game);
