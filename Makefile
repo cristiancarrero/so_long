@@ -82,4 +82,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+bonus:
+	@echo "No bonus part implemented"
+
+.PHONY: all clean fclean re bonus
