@@ -69,4 +69,4 @@ int	check_characters(t_game *game)
 	if (player != 1 || exit != 1 || game->collectibles < 1)
 		return (0);
 	return (1);
-} 
+}

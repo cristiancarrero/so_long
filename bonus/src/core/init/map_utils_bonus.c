@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_utils.c                                        :+:      :+:    :+:   */
+/*   map_utils_bonus.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,57 +12,91 @@
 
 #include "so_long_bonus.h"
 
+static int	get_line_length(char *line)
+{
+	int	len;
+
+	len = 0;
+	while (line[len] && line[len] != '\n')
+		len++;
+	return (len);
+}
+
+static int	process_line(char *line, t_game *game)
+{
+	int	len;
+
+	if (!line)
+		return (0);
+	len = get_line_length(line);
+	if (game->map_width == 0)
+		game->map_width = len;
+	if (len != game->map_width)
+	{
+		free(line);
+		return (0);
+	}
+	return (1);
+}
+
+static char	**allocate_map(t_game *game)
+{
+	char	**map;
+
+	map = (char **)malloc(sizeof(char *) * (game->map_height + 1));
+	if (!map)
+		return (NULL);
+	map[game->map_height] = NULL;
+	return (map);
+}
+
+static int	read_map_lines(int fd, t_game *game, char **map)
+{
+	char	*line;
+	int		i;
+
+	i = 0;
+	while (i < game->map_height)
+	{
+		line = get_next_line(fd);
+		if (!process_line(line, game))
+		{
+			while (i > 0)
+				free(map[--i]);
+			free(map);
+			return (0);
+		}
+		map[i] = line;
+		i++;
+	}
+	return (1);
+}
+
 int	read_map(char *file_path, t_game *game)
 {
 	int		fd;
 	char	*line;
-	char	**temp_map;
-	int		i;
 
 	fd = open(file_path, O_RDONLY);
 	if (fd < 0)
 		return (0);
 	game->map_height = 0;
 	game->map_width = 0;
-	line = get_next_line(fd);
-	if (!line)
-		return (0);
-	game->map_width = ft_strlen(line) - 1;
-	while (line)
-	{
-		game->map_height++;
-		free(line);
-		line = get_next_line(fd);
-	}
-	close(fd);
-	temp_map = malloc(sizeof(char *) * (game->map_height + 1));
-	if (!temp_map)
-		return (0);
-	fd = open(file_path, O_RDONLY);
-	if (fd < 0)
-	{
-		free(temp_map);
-		return (0);
-	}
-	i = 0;
-	while (i < game->map_height)
+	while (1)
 	{
 		line = get_next_line(fd);
 		if (!line)
-		{
-			while (i > 0)
-				free(temp_map[--i]);
-			free(temp_map);
-			close(fd);
-			return (0);
-		}
-		if (line[ft_strlen(line) - 1] == '\n')
-			line[ft_strlen(line) - 1] = '\0';
-		temp_map[i] = line;
-		i++;
+			break ;
+		game->map_height++;
+		free(line);
 	}
-	temp_map[i] = NULL;
-	game->map = temp_map;
+	close(fd);
+	fd = open(file_path, O_RDONLY);
+	if (fd < 0)
+		return (0);
+	game->map = allocate_map(game);
+	if (!game->map || !read_map_lines(fd, game, game->map))
+		return (0);
 	close(fd);
 	return (1);
 }

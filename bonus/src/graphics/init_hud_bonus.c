@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   load_textures_bonus.c                              :+:      :+:    :+:   */
+/*   init_hud_bonus.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,15 +12,17 @@
 
 #include "so_long_bonus.h"
 
-int	load_textures(t_game *game)
+void	init_hud(t_game *game)
 {
-	if (!load_wall_floor_textures(game))
-		return (0);
-	if (!load_collect_exit_textures(game))
-		return (0);
-	if (!load_player_textures(game))
-		return (0);
-	if (!load_enemy_textures(game))
-		return (0);
-	return (1);
+	int	width;
+
+	init_img(&game->hud_bg);
+	width = game->map_width * TILE_SIZE;
+	game->hud_bg.img = mlx_new_image(game->mlx, width, 30);
+	if (!game->hud_bg.img)
+		print_error("Error creating HUD background");
+	game->hud_bg.addr = mlx_get_data_addr(game->hud_bg.img,
+			&game->hud_bg.bits_per_pixel,
+			&game->hud_bg.line_length,
+			&game->hud_bg.endian);
 }

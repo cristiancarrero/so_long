@@ -119,7 +119,6 @@ typedef struct s_tile_params
 // Core functions
 int			init_mlx(t_game *game);
 void		init_img(t_img *img);
-int			init_game(t_game *game, char *map_path);
 int			load_textures(t_game *game);
 int			load_player_textures(t_game *game);
 int			load_collect_exit_textures(t_game *game);
@@ -195,5 +194,12 @@ int			create_enemy_image(t_game *game, int frame, char *path);
 
 // Enemy path utils
 char		*get_enemy_path(int frame);
+
+// Init functions
+int			init_game(t_game *game, char *map_path);
+void		init_game_values(t_game *game);
+void		init_map(t_game *game, char *map_path);
+void		init_textures(t_game *game);
+void		init_player(t_game *game);
 
 #endif

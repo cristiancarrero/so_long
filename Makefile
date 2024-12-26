@@ -66,6 +66,7 @@ BONUS_FILES	= main_bonus.c \
 			  core/init_img_bonus.c \
 			  core/init/init_game_bonus.c \
 			  core/init/init_mlx_bonus.c \
+			  core/init/init_game_utils_bonus.c \
 			  core/init/map_checks_bonus.c \
 			  core/init/map_validation_bonus.c \
 			  core/init/map_utils_bonus.c \
@@ -82,6 +83,7 @@ BONUS_FILES	= main_bonus.c \
 			  graphics/render_tile_bonus.c \
 			  graphics/render_hud_bonus.c \
 			  graphics/render_hud_utils_bonus.c \
+			  graphics/init_hud_bonus.c \
 			  graphics/render_utils_bonus.c \
 			  utils/cleanup_bonus.c \
 			  utils/cleanup_textures_bonus.c \

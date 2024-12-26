@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   load_textures_bonus.c                              :+:      :+:    :+:   */
+/*   init_game_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,15 +12,20 @@
 
 #include "so_long_bonus.h"
 
-int	load_textures(t_game *game)
+void	init_game_values(t_game *game)
 {
-	if (!load_wall_floor_textures(game))
-		return (0);
-	if (!load_collect_exit_textures(game))
-		return (0);
-	if (!load_player_textures(game))
-		return (0);
-	if (!load_enemy_textures(game))
-		return (0);
-	return (1);
+	game->moves = 0;
+	game->collected = 0;
+	game->collectibles = 0;
+	game->is_facing_left = 0;
+	game->frame_count = 0;
+	game->enemy_move_count = 0;
+	game->anim_frame_count = 0;
+	game->current_frame = 0;
+}
+
+void	init_player(t_game *game)
+{
+	game->player_x = 0;
+	game->player_y = 0;
 }

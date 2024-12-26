@@ -28,33 +28,41 @@ static void	clear_buffer(t_game *game)
 	}
 }
 
-void	render_map(t_game *game)
+static int	check_render_state(t_game *game)
+{
+	if (!game || !game->mlx || !game->win)
+	{
+		ft_putstr_fd("Error: MLX o ventana no inicializados\n", 1);
+		return (0);
+	}
+	if (!game->buffer.img || !game->buffer.addr)
+	{
+		ft_putstr_fd("Error: Buffer no inicializado\n", 1);
+		return (0);
+	}
+	return (1);
+}
+
+static void	render_map_tiles(t_game *game)
 {
 	int	x;
 	int	y;
 
-	if (!game || !game->mlx || !game->win)
-	{
-		ft_putstr_fd("Error: MLX o ventana no inicializados\n", 1);
-		return ;
-	}
-
-	if (!game->buffer.img || !game->buffer.addr)
-	{
-		ft_putstr_fd("Error: Buffer no inicializado\n", 1);
-		return ;
-	}
-
-	clear_buffer(game);
 	y = -1;
 	while (++y < game->map_height)
 	{
 		x = -1;
 		while (++x < game->map_width)
-		{
 			render_tile(game, x, y);
-		}
 	}
+}
+
+void	render_map(t_game *game)
+{
+	if (!check_render_state(game))
+		return ;
+	clear_buffer(game);
+	render_map_tiles(game);
 	if (game->num_enemies > 0)
 		render_enemies(game);
 	mlx_put_image_to_window(game->mlx, game->win, game->buffer.img, 0, 0);

@@ -63,4 +63,4 @@ int	check_map_size_and_chars(t_game *game)
 	if (!check_map_chars(game))
 		return (0);
 	return (1);
-} 
+}

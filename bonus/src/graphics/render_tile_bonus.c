@@ -12,59 +12,70 @@
 
 #include "so_long_bonus.h"
 
-void	render_tile(t_game *game, int x, int y)
+static void	render_floor(t_game *game, int x, int y)
+{
+	t_copy_params	params;
+
+	params.img = &game->floor;
+	params.x = x;
+	params.y = y;
+	params.is_player = 0;
+	params.direction = 1;
+	copy_image_to_buffer(game, params);
+}
+
+static void	render_collectible(t_game *game, int x, int y)
+{
+	t_copy_params	params;
+
+	params.img = &game->collect;
+	params.x = x;
+	params.y = y;
+	params.is_player = 0;
+	params.direction = 1;
+	copy_image_to_buffer(game, params);
+}
+
+static void	render_player(t_game *game, int x, int y)
+{
+	t_copy_params	params;
+
+	params.x = x;
+	params.y = y;
+	params.is_player = 1;
+	params.direction = game->is_facing_left;
+	if (game->is_facing_left)
+		params.img = &game->player_left;
+	else
+		params.img = &game->player;
+	copy_image_to_buffer(game, params);
+}
+
+static void	render_wall_or_exit(t_game *game, int x, int y, char tile)
 {
 	t_copy_params	params;
 
 	params.x = x;
 	params.y = y;
 	params.is_player = 0;
-	params.direction = 0;
-
-	// Primero renderizamos el suelo en todas las casillas
-	params.img = &game->floor;
-	copy_image_to_buffer(game, params);
-
-	// Luego renderizamos el contenido específico de la casilla
-	if (game->map[y][x] == '1')
-	{
+	params.direction = 1;
+	if (tile == '1')
 		params.img = &game->wall;
-		copy_image_to_buffer(game, params);
-	}
-	else if (game->map[y][x] == 'C' || game->map[y][x] == 'n' || game->map[y][x] == 'N')
-	{
-		// Si hay un coleccionable o un enemigo sobre un coleccionable, dibujamos el coleccionable
-		if (game->map[y][x] == 'C' || game->map[y][x] == 'n')
-		{
-			params.img = &game->collect;
-			copy_image_to_buffer(game, params);
-		}
-		// Si hay un enemigo (N o n), dibujamos el enemigo
-		if (game->map[y][x] == 'N' || game->map[y][x] == 'n')
-		{
-			int i = 0;
-			while (i < game->num_enemies)
-			{
-				if (game->enemies[i].x == x && game->enemies[i].y == y)
-				{
-					params.direction = game->enemies[i].direction;
-					params.img = &game->enemy[game->current_frame];
-					copy_image_to_buffer(game, params);
-					break;
-				}
-				i++;
-			}
-		}
-	}
-	else if (game->map[y][x] == 'E')
-	{
+	else
 		params.img = &game->exit;
-		copy_image_to_buffer(game, params);
-	}
-	else if (game->map[y][x] == 'P')
-	{
-		params.is_player = 1;
-		params.img = game->is_facing_left ? &game->player_left : &game->player;
-		copy_image_to_buffer(game, params);
-	}
+	copy_image_to_buffer(game, params);
+}
+
+void	render_tile(t_game *game, int x, int y)
+{
+	char	tile;
+
+	tile = game->map[y][x];
+	render_floor(game, x, y);
+	if (tile == '1' || tile == 'E')
+		render_wall_or_exit(game, x, y, tile);
+	else if (tile == 'P')
+		render_player(game, x, y);
+	else if (tile == 'C')
+		render_collectible(game, x, y);
 }
