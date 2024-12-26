@@ -27,7 +27,7 @@
 # define MAX_MAP_WIDTH 50
 # define MAX_MAP_HEIGHT 30
 # define MAX_ENEMIES 50
-# define ENEMY_MOVE_INTERVAL 20
+# define ENEMY_MOVE_INTERVAL 15
 # define ANIMATION_FRAMES 4
 # define FRAMES_PER_TYPE 2
 # define ANIMATION_SPEED 20
@@ -66,6 +66,7 @@ typedef struct s_game
 	int		player_y;
 	int		is_facing_left;
 	int		frame_count;
+	int		enemy_move_count;
 	int		anim_frame_count;
 	int		current_frame;
 	t_enemy	enemies[MAX_ENEMIES];
@@ -153,6 +154,10 @@ int			read_map(char *file_path, t_game *game);
 void		cleanup_game(t_game *game);
 void		cleanup_map(char **map);
 void		cleanup_images(t_game *game);
+void		cleanup_game_textures(t_game *game);
+void		cleanup_player_textures(t_game *game);
+void		cleanup_enemy_textures(t_game *game);
+void		cleanup_buffer_textures(t_game *game);
 
 // Error handling
 void		print_error(char *message);
@@ -182,5 +187,13 @@ int			load_enemy_textures(t_game *game);
 // HUD functions
 void		init_hud(t_game *game);
 void		render_moves_counter(t_game *game);
+
+// Enemy texture utils
+void		init_enemy_img(t_img *img);
+char		*get_enemy_path(int frame);
+int			create_enemy_image(t_game *game, int frame, char *path);
+
+// Enemy path utils
+char		*get_enemy_path(int frame);
 
 #endif

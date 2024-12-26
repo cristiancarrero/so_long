@@ -58,9 +58,9 @@ void	update_enemies(t_game *game)
 {
 	int	i;
 
-	if (game->frame_count % ENEMY_MOVE_INTERVAL != 0)
+	if (game->enemy_move_count % ENEMY_MOVE_INTERVAL != 0)
 	{
-		game->frame_count++;
+		game->enemy_move_count++;
 		return ;
 	}
 	i = 0;
@@ -69,5 +69,5 @@ void	update_enemies(t_game *game)
 		process_enemy(game, i);
 		i++;
 	}
-	game->frame_count++;
+	game->enemy_move_count++;
 }

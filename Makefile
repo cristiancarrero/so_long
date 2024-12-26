@@ -69,16 +69,22 @@ BONUS_FILES	= main_bonus.c \
 			  core/init/map_checks_bonus.c \
 			  core/init/map_validation_bonus.c \
 			  core/init/map_utils_bonus.c \
+			  core/init/map_chars_bonus.c \
+			  core/init/map_size_chars_bonus.c \
 			  core/load_textures_bonus.c \
 			  core/textures/load_wall_floor_bonus.c \
 			  core/textures/load_player_textures_bonus.c \
 			  core/textures/load_collect_exit_bonus.c \
+			  core/textures/load_enemy_textures_bonus.c \
+			  core/textures/enemy_texture_utils_bonus.c \
+			  core/textures/enemy_path_utils_bonus.c \
 			  graphics/render_bonus.c \
 			  graphics/render_tile_bonus.c \
 			  graphics/render_hud_bonus.c \
 			  graphics/render_hud_utils_bonus.c \
 			  graphics/render_utils_bonus.c \
 			  utils/cleanup_bonus.c \
+			  utils/cleanup_textures_bonus.c \
 			  utils/events_bonus.c \
 			  utils/movement_bonus.c \
 			  utils/error_bonus.c \

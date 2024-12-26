@@ -12,57 +12,40 @@
 
 #include "so_long_bonus.h"
 
-static void	count_map_elements(t_game *game, int *player, int *exit)
+int	check_rectangular(t_game *game)
 {
-	t_count_params	p;
+	int	i;
+	int	len;
 
-	p.player = player;
-	p.exit = exit;
-	p.i = 0;
-	while (p.i < game->map_height)
+	len = ft_strlen(game->map[0]);
+	i = 0;
+	while (i < game->map_height)
 	{
-		p.j = 0;
-		while (p.j < game->map_width)
-		{
-			if (game->map[p.i][p.j] == 'P')
-			{
-				(*p.player)++;
-				game->player_x = p.j;
-				game->player_y = p.i;
-			}
-			else if (game->map[p.i][p.j] == 'E')
-				(*p.exit)++;
-			else if (game->map[p.i][p.j] == 'C')
-				game->collectibles++;
-			p.j++;
-		}
-		p.i++;
+		if ((int)ft_strlen(game->map[i]) != len)
+			return (0);
+		i++;
 	}
+	return (1);
 }
 
-int	check_characters(t_game *game)
+int	validate_map(t_game *game)
 {
-	int	player;
-	int	exit;
-
-	player = 0;
-	exit = 0;
-	game->collectibles = 0;
-	count_map_elements(game, &player, &exit);
-	if (player != 1)
+	if (!check_rectangular(game))
 	{
-		ft_putstr_fd("Error: Debe haber exactamente un jugador\n", 1);
+		ft_putstr_fd("Error: El mapa no es rectangular\n", 1);
 		return (0);
 	}
-	if (exit != 1)
+	if (!check_walls(game))
 	{
-		ft_putstr_fd("Error: Debe haber exactamente una salida\n", 1);
+		ft_putstr_fd("Error: El mapa no está rodeado por muros\n", 1);
 		return (0);
 	}
-	if (game->collectibles < 1)
+	if (!check_characters(game))
 	{
-		ft_putstr_fd("Error: Debe haber al menos un coleccionable\n", 1);
+		ft_putstr_fd("Error: Número incorrecto de jugadores o salidas\n", 1);
 		return (0);
 	}
+	if (!check_map_size_and_chars(game))
+		return (0);
 	return (1);
 }

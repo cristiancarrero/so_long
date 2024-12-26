@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_checks.c                                       :+:      :+:    :+:   */
+/*   map_checks_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,85 +12,41 @@
 
 #include "so_long_bonus.h"
 
-int	check_rectangular(t_game *game)
+static int	check_top_bottom_walls(t_game *game, int y)
 {
-	int	i;
-	int	len;
+	int	x;
 
-	len = ft_strlen(game->map[0]);
-	i = 0;
-	while (i < game->map_height)
+	x = 0;
+	while (x < game->map_width)
 	{
-		if ((int)ft_strlen(game->map[i]) != len)
+		if (game->map[y][x] != '1')
 			return (0);
-		i++;
+		x++;
 	}
+	return (1);
+}
+
+static int	check_side_walls(t_game *game, int y)
+{
+	if (game->map[y][0] != '1' || game->map[y][game->map_width - 1] != '1')
+		return (0);
 	return (1);
 }
 
 int	check_walls(t_game *game)
 {
-	int				i;
-	int				j;
-	int				is_border;
-	t_check_params	p;
+	int	y;
 
-	i = 0;
-	while (i < game->map_height)
-	{
-		j = 0;
-		while (j < game->map_width)
-		{
-			p.x = j;
-			p.y = i;
-			p.width = game->map_width;
-			p.height = game->map_height;
-			is_border = (p.y == 0 || p.y == p.height - 1
-					|| p.x == 0 || p.x == p.width - 1);
-			if (is_border && game->map[i][j] != '1')
-				return (0);
-			j++;
-		}
-		i++;
-	}
-	return (1);
-}
-
-int	check_map_size_and_chars(t_game *game)
-{
-	int	i;
-	int	j;
-
-	if (game->map_height > MAX_MAP_HEIGHT || game->map_width > MAX_MAP_WIDTH)
-	{
-		ft_putstr_fd("Error: Mapa demasiado grande\n", 1);
+	if (!check_top_bottom_walls(game, 0))
 		return (0);
-	}
-	if (game->map_width < 3 || game->map_height < 3)
+	y = 1;
+	while (y < game->map_height - 1)
 	{
-		ft_putstr_fd("Error: Mapa demasiado pequeño\n", 1);
+		if (!check_side_walls(game, y))
+			return (0);
+		y++;
+	}
+	if (!check_top_bottom_walls(game, game->map_height - 1))
 		return (0);
-	}
-	i = 0;
-	while (i < game->map_height)
-	{
-		j = 0;
-		while (j < game->map_width)
-		{
-			if (game->map[i][j] != '0' && game->map[i][j] != '1' &&
-				game->map[i][j] != 'C' && game->map[i][j] != 'E' &&
-				game->map[i][j] != 'P' && game->map[i][j] != 'N' &&
-				game->map[i][j] != 'M' && game->map[i][j] != 'n' &&
-				game->map[i][j] != 'm')
-			{
-				ft_putstr_fd("Error: Carácter inválido en el mapa: ", 1);
-				ft_putchar_fd(game->map[i][j], 1);
-				ft_putstr_fd("\n", 1);
-				return (0);
-			}
-			j++;
-		}
-		i++;
-	}
 	return (1);
 }

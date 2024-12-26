@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   load_enemy_textures_bonus.c                        :+:      :+:    :+:   */
+/*   cleanup_textures_bonus.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,24 +12,32 @@
 
 #include "so_long_bonus.h"
 
-static int	load_enemy_frame(t_game *game, int frame)
+void	cleanup_game_textures(t_game *game)
 {
-	char	*path;
-
-	path = get_enemy_path(frame);
-	if (!path)
-		return (0);
-	if (!create_enemy_image(game, frame, path))
-		return (0);
-	return (1);
+	if (game->wall.img)
+		mlx_destroy_image(game->mlx, game->wall.img);
+	if (game->floor.img)
+		mlx_destroy_image(game->mlx, game->floor.img);
+	if (game->collect.img)
+		mlx_destroy_image(game->mlx, game->collect.img);
+	if (game->exit.img)
+		mlx_destroy_image(game->mlx, game->exit.img);
 }
 
-static void	cleanup_loaded_frames(t_game *game, int last_frame)
+void	cleanup_player_textures(t_game *game)
+{
+	if (game->player.img)
+		mlx_destroy_image(game->mlx, game->player.img);
+	if (game->player_left.img)
+		mlx_destroy_image(game->mlx, game->player_left.img);
+}
+
+void	cleanup_enemy_textures(t_game *game)
 {
 	int	i;
 
 	i = 0;
-	while (i < last_frame)
+	while (i < ANIMATION_FRAMES)
 	{
 		if (game->enemy[i].img)
 			mlx_destroy_image(game->mlx, game->enemy[i].img);
@@ -37,19 +45,10 @@ static void	cleanup_loaded_frames(t_game *game, int last_frame)
 	}
 }
 
-int	load_enemy_textures(t_game *game)
+void	cleanup_buffer_textures(t_game *game)
 {
-	int	frame;
-
-	frame = 0;
-	while (frame < ANIMATION_FRAMES)
-	{
-		if (!load_enemy_frame(game, frame))
-		{
-			cleanup_loaded_frames(game, frame);
-			return (0);
-		}
-		frame++;
-	}
-	return (1);
+	if (game->buffer.img)
+		mlx_destroy_image(game->mlx, game->buffer.img);
+	if (game->hud_bg.img)
+		mlx_destroy_image(game->mlx, game->hud_bg.img);
 }
