@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_hud_utils.c                                 :+:      :+:    :+:   */
+/*   render_hud_utils_bonus.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,7 +12,7 @@
 
 #include "so_long_bonus.h"
 
-static void	put_pixel_to_buffer(t_img *buffer, int x, int y, int color)
+static void	put_pixel_to_hud(t_img *buffer, int x, int y, unsigned int color)
 {
 	char	*dst;
 
@@ -50,7 +50,7 @@ void	render_button_background(t_game *game, int x, int y, int width)
 		j = -border;
 		while (j < height + border)
 		{
-			put_pixel_to_buffer(&game->buffer, x + i, y + j,
+			put_pixel_to_hud(&game->buffer, x + i, y + j,
 				get_button_color(i, j, width, height));
 			j++;
 		}

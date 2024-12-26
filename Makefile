@@ -56,6 +56,45 @@ OBJS		= $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
 LIBFT		= $(LIBFT_DIR)/libft.a
 MLX			= $(MLX_DIR)/libmlx.a
 
+# Bonus
+BONUS_NAME	= so_long_bonus
+BONUS_DIR	= bonus/src
+BONUS_INC	= bonus/inc
+
+# Archivos que cambian para bonus y archivos base necesarios
+BONUS_FILES	= main_bonus.c \
+			  core/init_img_bonus.c \
+			  core/init/init_game_bonus.c \
+			  core/init/init_mlx_bonus.c \
+			  core/init/map_checks_bonus.c \
+			  core/init/map_validation_bonus.c \
+			  core/init/map_utils_bonus.c \
+			  core/load_textures_bonus.c \
+			  core/textures/load_wall_floor_bonus.c \
+			  core/textures/load_player_textures_bonus.c \
+			  core/textures/load_collect_exit_bonus.c \
+			  graphics/render_bonus.c \
+			  graphics/render_tile_bonus.c \
+			  graphics/render_hud_bonus.c \
+			  graphics/render_hud_utils_bonus.c \
+			  graphics/render_utils_bonus.c \
+			  utils/cleanup_bonus.c \
+			  utils/events_bonus.c \
+			  utils/movement_bonus.c \
+			  utils/error_bonus.c \
+			  utils/get_next_line_bonus.c \
+			  utils/get_next_line_utils_bonus.c \
+			  utils/texture_utils_bonus.c \
+			  utils/img_utils_bonus.c \
+			  utils/enemy_bonus.c \
+			  utils/animation_bonus.c
+
+BONUS_SRCS	= $(addprefix $(BONUS_DIR)/, $(BONUS_FILES))
+BONUS_OBJS	= $(addprefix $(OBJ_DIR)/, $(BONUS_FILES:.c=.o))
+
+# Include directories
+INCLUDES = -Ibonus/inc -Ilibft -Iminilibx-linux
+
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(MLX) $(OBJS)
@@ -71,18 +110,31 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -I$(INC_DIR) -I$(LIBFT_DIR) -I$(MLX_DIR) -c $< -o $@
 
-clean:
+$(OBJ_DIR)/%.o: $(BONUS_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -I$(BONUS_INC) -I$(LIBFT_DIR) -I$(MLX_DIR) -c $< -o $@
+
+clean: clean_bonus
+	make -C $(LIBFT_DIR) clean
+	make -C $(MLX_DIR) clean
+
+clean_bonus:
 	$(RM) -r $(OBJ_DIR)
-	make clean -C $(LIBFT_DIR)
-	make clean -C $(MLX_DIR)
 
 fclean: clean
+	make -C $(LIBFT_DIR) fclean
 	$(RM) $(NAME)
-	make fclean -C $(LIBFT_DIR)
+	$(RM) $(BONUS_NAME)
+
+fclean_bonus: clean_bonus
+	$(RM) $(NAME)
+	$(RM) $(BONUS_NAME)
 
 re: fclean all
 
-bonus:
-	@echo "No bonus part implemented"
+re_bonus: fclean_bonus bonus
 
-.PHONY: all clean fclean re bonus
+bonus: $(LIBFT) $(MLX) $(BONUS_OBJS)
+	$(CC) $(BONUS_OBJS) -o $(BONUS_NAME) $(LIBFT) $(MLX_FLAGS)
+
+.PHONY: all clean fclean re bonus clean_bonus fclean_bonus re_bonus

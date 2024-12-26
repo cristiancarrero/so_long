@@ -53,9 +53,7 @@ void	copy_image_to_buffer(t_game *game, t_copy_params params)
 	int	i;
 	int	j;
 
-	if (!params.img || !params.img->img || !params.img->addr || params.x < 0
-		|| params.y < 0 || params.x >= game->map_width
-		|| params.y >= game->map_height)
+	if (!params.img || !params.img->img || !params.img->addr)
 		return ;
 	i = -1;
 	while (++i < TILE_SIZE)
