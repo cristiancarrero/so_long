@@ -39,7 +39,3 @@ minilibx-linux/
 *~
 *.swp
 *.swo
-
-# Project specific
-maps/bonus/
-textures/bonus/
