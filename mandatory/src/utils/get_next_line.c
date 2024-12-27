@@ -64,23 +64,30 @@ static char	*get_line(char *buffer)
 	return (line);
 }
 
+static char	*free_and_return(char *buffer)
+{
+	free(buffer);
+	return (NULL);
+}
+
 static char	*update_buffer(char *buffer)
 {
 	int		i;
 	int		j;
 	char	*new_buffer;
+	int		len;
 
 	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	if (!buffer[i])
-	{
-		free(buffer);
-		return (NULL);
-	}
-	new_buffer = malloc(sizeof(char) * (ft_strlen_gnl(buffer) - i + 1));
+		return (free_and_return(buffer));
+	len = ft_strlen_gnl(buffer) - i - 1;
+	if (len <= 0)
+		return (free_and_return(buffer));
+	new_buffer = malloc(sizeof(char) * (len + 1));
 	if (!new_buffer)
-		return (NULL);
+		return (free_and_return(buffer));
 	i++;
 	j = 0;
 	while (buffer[i])
@@ -101,6 +108,12 @@ char	*get_next_line(int fd)
 	if (!buffer)
 		return (NULL);
 	line = get_line(buffer);
+	if (!line)
+	{
+		free(buffer);
+		buffer = NULL;
+		return (NULL);
+	}
 	buffer = update_buffer(buffer);
 	return (line);
 }
