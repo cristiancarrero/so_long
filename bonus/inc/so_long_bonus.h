@@ -27,7 +27,7 @@
 # define MAX_MAP_WIDTH 50
 # define MAX_MAP_HEIGHT 30
 # define MAX_ENEMIES 50
-# define ENEMY_MOVE_INTERVAL 15
+# define ENEMY_MOVE_INTERVAL 13
 # define ANIMATION_FRAMES 4
 # define FRAMES_PER_TYPE 2
 # define ANIMATION_SPEED 20
@@ -128,6 +128,8 @@ int			load_wall_floor_textures(t_game *game);
 void		render_map(t_game *game);
 int			render_frame(t_game *game);
 void		render_tile(t_game *game, int x, int y);
+void		render_floor(t_game *game, int x, int y);
+void		render_collectible(t_game *game, int x, int y);
 void		copy_image_to_buffer(t_game *game, t_copy_params params);
 void		render_hud(t_game *game);
 void		render_button_background(t_game *game, int x, int y, int width);

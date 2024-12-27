@@ -12,7 +12,7 @@
 
 #include "so_long_bonus.h"
 
-static void	render_floor(t_game *game, int x, int y)
+void	render_floor(t_game *game, int x, int y)
 {
 	t_copy_params	params;
 
@@ -24,7 +24,7 @@ static void	render_floor(t_game *game, int x, int y)
 	copy_image_to_buffer(game, params);
 }
 
-static void	render_collectible(t_game *game, int x, int y)
+void	render_collectible(t_game *game, int x, int y)
 {
 	t_copy_params	params;
 
@@ -76,6 +76,6 @@ void	render_tile(t_game *game, int x, int y)
 		render_wall_or_exit(game, x, y, tile);
 	else if (tile == 'P')
 		render_player(game, x, y);
-	else if (tile == 'C')
+	else if (tile == 'C' || tile == 'n' || tile == 'm')
 		render_collectible(game, x, y);
 }

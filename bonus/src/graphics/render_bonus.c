@@ -63,8 +63,7 @@ void	render_map(t_game *game)
 		return ;
 	clear_buffer(game);
 	render_map_tiles(game);
-	if (game->num_enemies > 0)
-		render_enemies(game);
+	render_enemies(game);
 	mlx_put_image_to_window(game->mlx, game->win, game->buffer.img, 0, 0);
 	render_hud(game);
 }
