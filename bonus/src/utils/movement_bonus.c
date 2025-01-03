@@ -16,6 +16,10 @@ static int	handle_move_to_exit(t_game *game)
 {
 	if (game->collected == game->collectibles)
 	{
+		game->moves++;
+		ft_putstr_fd("Movimientos: ", 1);
+		ft_putnbr_fd(game->moves, 1);
+		ft_putstr_fd("\n", 1);
 		ft_putstr_fd("¡Has ganado!\n", 1);
 		close_game(game);
 	}
