@@ -28,15 +28,23 @@ static int	init_game_vars(t_game *game)
 
 int	init_game(t_game *game, char *map_path)
 {
+	game->map = NULL;
 	if (!read_map(map_path, game))
+	{
+		ft_putstr_fd("Error: No se pudo leer el mapa\n", 2);
 		return (0);
-	if (!check_map_size_and_chars(game))
+	}
+	if (!validate_map(game))
+	{
+		cleanup_map(game->map);
+		game->map = NULL;
 		return (0);
-	if (!check_rectangular(game))
+	}
+	if (!init_game_vars(game))
+	{
+		cleanup_map(game->map);
+		game->map = NULL;
 		return (0);
-	if (!check_walls(game))
-		return (0);
-	if (!check_characters(game))
-		return (0);
-	return (init_game_vars(game));
+	}
+	return (1);
 }

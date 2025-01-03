@@ -30,6 +30,8 @@ SRC_FILES	= main.c \
 			  core/init/map_utils.c \
 			  core/init/map_checks.c \
 			  core/init/map_validation.c \
+			  core/init/map_flood_fill.c \
+			  core/init/map_validation_utils.c \
 			  core/init_img.c \
 			  core/load_textures.c \
 			  core/textures/load_player_textures.c \
@@ -72,6 +74,9 @@ BONUS_FILES	= main_bonus.c \
 			  core/init/map_utils_bonus.c \
 			  core/init/map_chars_bonus.c \
 			  core/init/map_size_chars_bonus.c \
+			  core/init/map_validation_utils_bonus.c \
+			  core/init/map_count_utils_bonus.c \
+			  core/init/map_flood_fill_bonus.c \
 			  core/load_textures_bonus.c \
 			  core/textures/load_wall_floor_bonus.c \
 			  core/textures/load_player_textures_bonus.c \

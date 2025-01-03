@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_checks_bonus.c                                 :+:      :+:    :+:   */
+/*   map_validation_utils.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,43 +10,34 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../inc/so_long_bonus.h"
+#include "../../../inc/so_long.h"
 
-int	check_rectangular(t_game *game)
+int	validate_map_dimensions(t_game *game)
 {
-	int		i;
-	size_t	expected_len;
-
-	if (game->map_height < 1)
-		return (0);
-	expected_len = ft_strlen(game->map[0]);
-	game->map_width = (int)expected_len;
-	i = 1;
-	while (i < game->map_height)
+	if (!check_rectangular(game))
 	{
-		if (ft_strlen(game->map[i]) != expected_len)
-			return (0);
-		i++;
+		ft_putstr_fd("Error: El mapa no es rectangular\n", 2);
+		return (0);
+	}
+	if (!check_walls(game))
+	{
+		ft_putstr_fd("Error: El mapa no está rodeado de muros\n", 2);
+		return (0);
 	}
 	return (1);
 }
 
-int	check_walls(t_game *game)
+int	validate_map_content(t_game *game)
 {
-	int	i;
-	int	j;
-
-	i = -1;
-	while (++i < game->map_height)
+	if (!check_characters(game))
 	{
-		j = -1;
-		while (++j < game->map_width)
-		{
-			if ((i == 0 || i == game->map_height - 1
-					|| j == 0 || j == game->map_width - 1)
-				&& game->map[i][j] != '1')
-				return (0);
-		}
+		ft_putstr_fd("Error: Caracteres inválidos en el mapa\n", 2);
+		return (0);
+	}
+	if (!check_path(game))
+	{
+		ft_putstr_fd("Error: No hay camino válido\n", 2);
+		return (0);
 	}
 	return (1);
 }

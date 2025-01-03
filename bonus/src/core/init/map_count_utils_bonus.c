@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_checks_bonus.c                                 :+:      :+:    :+:   */
+/*   map_count_utils_bonus.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,41 +12,28 @@
 
 #include "../../../inc/so_long_bonus.h"
 
-int	check_rectangular(t_game *game)
+void	init_counts(t_game *game, t_counts *counts)
 {
-	int		i;
-	size_t	expected_len;
-
-	if (game->map_height < 1)
-		return (0);
-	expected_len = ft_strlen(game->map[0]);
-	game->map_width = (int)expected_len;
-	i = 1;
-	while (i < game->map_height)
-	{
-		if (ft_strlen(game->map[i]) != expected_len)
-			return (0);
-		i++;
-	}
-	return (1);
+	counts->player = 0;
+	counts->exit = 0;
+	game->collectibles = 0;
+	game->num_enemies = 0;
 }
 
-int	check_walls(t_game *game)
+void	print_char_error(char c)
 {
-	int	i;
-	int	j;
+	ft_putstr_fd("Error: Caracter inválido '", 2);
+	ft_putchar_fd(c, 2);
+	ft_putstr_fd("' en el mapa\n", 2);
+}
 
-	i = -1;
-	while (++i < game->map_height)
-	{
-		j = -1;
-		while (++j < game->map_width)
-		{
-			if ((i == 0 || i == game->map_height - 1
-					|| j == 0 || j == game->map_width - 1)
-				&& game->map[i][j] != '1')
-				return (0);
-		}
-	}
-	return (1);
+void	print_config_error(int type)
+{
+	ft_putstr_fd("Error: Configuración inválida - ", 2);
+	if (type == 0)
+		ft_putstr_fd("Debe haber exactamente un jugador\n", 2);
+	else if (type == 1)
+		ft_putstr_fd("Debe haber exactamente una salida\n", 2);
+	else
+		ft_putstr_fd("Debe haber al menos un coleccionable\n", 2);
 }

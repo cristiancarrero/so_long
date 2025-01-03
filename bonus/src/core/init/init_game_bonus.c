@@ -6,27 +6,11 @@
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by ccarrero          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr       */
+/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr      */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long_bonus.h"
-
-static void	init_window(t_game *game)
-{
-	game->mlx = mlx_init();
-	if (!game->mlx)
-		print_error("Error initializing MLX");
-	game->win = mlx_new_window(game->mlx, game->map_width * TILE_SIZE,
-			game->map_height * TILE_SIZE, "so_long");
-	if (!game->win)
-	{
-		print_error("Error creating window");
-		mlx_destroy_display(game->mlx);
-		free(game->mlx);
-		game->mlx = NULL;
-	}
-}
+#include "../../../inc/so_long_bonus.h"
 
 static void	init_buffer(t_game *game)
 {
@@ -34,7 +18,7 @@ static void	init_buffer(t_game *game)
 			game->map_width * TILE_SIZE, game->map_height * TILE_SIZE);
 	if (!game->buffer.img)
 	{
-		print_error("Error creating buffer");
+		ft_putstr_fd("Error: No se pudo crear el buffer\n", 2);
 		return ;
 	}
 	game->buffer.addr = mlx_get_data_addr(game->buffer.img,
@@ -45,49 +29,47 @@ static void	init_buffer(t_game *game)
 	game->buffer.height = game->map_height * TILE_SIZE;
 }
 
-static void	count_map_enemies(t_game *game)
+static int	init_mlx_components(t_game *game)
 {
-	int	i;
-	int	j;
-
-	game->num_enemies = 0;
-	i = 0;
-	while (i < game->map_height)
+	game->mlx = mlx_init();
+	if (!game->mlx)
 	{
-		j = 0;
-		while (j < game->map_width)
-		{
-			if (game->map[i][j] == 'N' || game->map[i][j] == 'M')
-				game->num_enemies++;
-			j++;
-		}
-		i++;
+		ft_putstr_fd("Error: No se pudo inicializar MLX\n", 2);
+		return (0);
 	}
+	game->win = mlx_new_window(game->mlx, game->map_width * TILE_SIZE,
+			game->map_height * TILE_SIZE, "so_long");
+	if (!game->win)
+	{
+		ft_putstr_fd("Error: No se pudo crear la ventana\n", 2);
+		mlx_destroy_display(game->mlx);
+		free(game->mlx);
+		game->mlx = NULL;
+		return (0);
+	}
+	init_buffer(game);
+	return (1);
 }
 
 int	init_game(t_game *game, char *map_path)
 {
-	if (!game)
-		return (0);
 	init_game_values(game);
 	if (!read_map(map_path, game))
+	{
+		ft_putstr_fd("Error: No se pudo leer el mapa\n", 2);
 		return (0);
+	}
 	if (!validate_map(game))
 	{
 		cleanup_map(game->map);
+		game->map = NULL;
 		return (0);
 	}
-	init_window(game);
-	if (!game->mlx || !game->win)
-		return (0);
-	init_buffer(game);
-	init_player(game);
-	if (!load_textures(game))
+	if (!init_mlx_components(game) || !load_textures(game))
 	{
 		cleanup_game(game);
 		return (0);
 	}
-	count_map_enemies(game);
 	init_enemies(game);
 	init_hud(game);
 	return (1);

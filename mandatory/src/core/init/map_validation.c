@@ -6,7 +6,7 @@
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by ccarrero          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr       */
+/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr      */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,47 +52,43 @@ int	check_characters(t_game *game)
 	return (player == 1 && game->collectibles > 0 && exit == 1);
 }
 
-static int	is_valid_char(char c)
+static int	validate_map_structure(t_game *game)
 {
-	return (c == '0' || c == '1' || c == 'C' || c == 'E' || c == 'P');
-}
-
-static int	check_size(t_game *game)
-{
-	if (game->map_width > MAX_MAP_WIDTH || game->map_height > MAX_MAP_HEIGHT)
+	if (!check_rectangular(game))
 	{
-		ft_putstr_fd("Error: Mapa demasiado grande\n", 2);
+		ft_putstr_fd("Error: El mapa no es rectangular\n", 2);
 		return (0);
 	}
-	if (game->map_width < 3 || game->map_height < 3)
+	if (!check_walls(game))
 	{
-		ft_putstr_fd("Error: Mapa demasiado pequeño\n", 2);
+		ft_putstr_fd("Error: El mapa no está rodeado de muros\n", 2);
 		return (0);
 	}
 	return (1);
 }
 
-int	check_map_size_and_chars(t_game *game)
+static int	validate_map_content(t_game *game)
 {
-	int	i;
-	int	j;
-
-	if (!check_size(game))
+	if (!check_map_size_and_chars(game))
 		return (0);
-	i = -1;
-	while (++i < game->map_height)
+	if (!check_characters(game))
 	{
-		j = -1;
-		while (++j < game->map_width)
-		{
-			if (!is_valid_char(game->map[i][j]))
-			{
-				ft_putstr_fd("Error: Caracter inválido en el mapa: ", 2);
-				ft_putchar_fd(game->map[i][j], 2);
-				ft_putchar_fd('\n', 2);
-				return (0);
-			}
-		}
+		ft_putstr_fd("Error: Configuración de caracteres inválida\n", 2);
+		return (0);
+	}
+	return (1);
+}
+
+int	validate_map(t_game *game)
+{
+	if (!validate_map_content(game))
+		return (0);
+	if (!validate_map_structure(game))
+		return (0);
+	if (!check_path(game))
+	{
+		ft_putstr_fd("Error: No hay un camino válido al objetivo\n", 2);
+		return (0);
 	}
 	return (1);
 }

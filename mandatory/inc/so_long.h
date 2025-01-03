@@ -46,6 +46,9 @@ typedef struct s_game
 	int		map_width;
 	int		map_height;
 	int		collectibles;
+	int		temp_collectibles;
+	int		temp_exit;
+	int		exit_found;
 	int		collected;
 	int		moves;
 	int		player_x;

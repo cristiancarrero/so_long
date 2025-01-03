@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_checks_bonus.c                                 :+:      :+:    :+:   */
+/*   map_count_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,43 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../inc/so_long_bonus.h"
+#include "../../../inc/so_long.h"
 
-int	check_rectangular(t_game *game)
+void	update_map_counts(t_game *game, char c, t_count_params p)
 {
-	int		i;
-	size_t	expected_len;
-
-	if (game->map_height < 1)
-		return (0);
-	expected_len = ft_strlen(game->map[0]);
-	game->map_width = (int)expected_len;
-	i = 1;
-	while (i < game->map_height)
+	if (c == 'P' && ++(*p.player))
 	{
-		if (ft_strlen(game->map[i]) != expected_len)
-			return (0);
-		i++;
+		game->player_x = p.j;
+		game->player_y = p.i;
 	}
-	return (1);
-}
-
-int	check_walls(t_game *game)
-{
-	int	i;
-	int	j;
-
-	i = -1;
-	while (++i < game->map_height)
-	{
-		j = -1;
-		while (++j < game->map_width)
-		{
-			if ((i == 0 || i == game->map_height - 1
-					|| j == 0 || j == game->map_width - 1)
-				&& game->map[i][j] != '1')
-				return (0);
-		}
-	}
-	return (1);
+	else if (c == 'C')
+		game->collectibles++;
+	else if (c == 'E')
+		++(*p.exit);
 }

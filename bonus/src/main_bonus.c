@@ -27,14 +27,12 @@ int	main(int argc, char **argv)
 
 	if (argc != 2)
 	{
-		ft_putstr_fd("Error\nUso: ./so_long_bonus <mapa.ber>\n", 2);
+		ft_putstr_fd("Error: Uso incorrecto\n", 2);
+		ft_putstr_fd("Uso: ./so_long_bonus <mapa.ber>\n", 2);
 		return (1);
 	}
 	if (!init_game(&game, argv[1]))
-	{
-		cleanup_game(&game);
 		return (1);
-	}
 	mlx_hook(game.win, KeyPress, KeyPressMask, handle_keypress, &game);
 	mlx_hook(game.win, DestroyNotify, StructureNotifyMask, handle_close, &game);
 	mlx_loop_hook(game.mlx, game_loop, &game);

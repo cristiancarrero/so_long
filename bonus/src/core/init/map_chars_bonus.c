@@ -6,67 +6,62 @@
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by ccarrero          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr       */
+/*   Updated: 2024/01/01 00:00:00 by ccarrero         ###   ########.fr      */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long_bonus.h"
+#include "../../../inc/so_long_bonus.h"
 
-static void	init_count_params(t_count_params *params)
-{
-	*params->player = 0;
-	*params->exit = 0;
-	params->i = 0;
-	params->j = 0;
-}
-
-static int	check_valid_chars(char c)
+static int	is_valid_char(char c)
 {
 	return (c == '0' || c == '1' || c == 'C' || c == 'E' || c == 'P'
 		|| c == 'N' || c == 'M');
 }
 
-static int	update_counts(t_count_params *params, char c, t_game *game)
+static int	process_char(t_game *game, char c, t_counts *counts, t_pos pos)
 {
-	if (!check_valid_chars(c))
-		return (0);
-	if (c == 'P')
+	if (!is_valid_char(c))
 	{
-		(*params->player)++;
-		game->player_x = params->j;
-		game->player_y = params->i;
+		print_char_error(c);
+		return (0);
 	}
-	else if (c == 'E')
-		(*params->exit)++;
+	if (c == 'P' && ++counts->player)
+	{
+		game->player_x = pos.x;
+		game->player_y = pos.y;
+	}
 	else if (c == 'C')
 		game->collectibles++;
+	else if (c == 'E')
+		++counts->exit;
+	else if (c == 'N' || c == 'M')
+		game->num_enemies++;
 	return (1);
 }
 
 int	check_characters(t_game *game)
 {
-	t_count_params	params;
-	int				player;
-	int				exit;
+	t_counts	counts;
+	t_pos		pos;
 
-	player = 0;
-	exit = 0;
-	game->collectibles = 0;
-	params.player = &player;
-	params.exit = &exit;
-	init_count_params(&params);
-	while (params.i < game->map_height)
+	init_counts(game, &counts);
+	pos.y = -1;
+	while (++pos.y < game->map_height)
 	{
-		params.j = 0;
-		while (params.j < game->map_width)
-		{
-			if (!update_counts(&params, game->map[params.i][params.j], game))
+		pos.x = -1;
+		while (++pos.x < game->map_width)
+			if (!process_char(game, game->map[pos.y][pos.x], &counts, pos))
 				return (0);
-			params.j++;
-		}
-		params.i++;
 	}
-	if (player != 1 || exit != 1 || game->collectibles < 1)
+	if (counts.player != 1 || counts.exit != 1 || game->collectibles < 1)
+	{
+		if (counts.player != 1)
+			print_config_error(0);
+		else if (counts.exit != 1)
+			print_config_error(1);
+		else
+			print_config_error(2);
 		return (0);
+	}
 	return (1);
 }

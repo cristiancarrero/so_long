@@ -69,6 +69,9 @@ typedef struct s_game
 	int		enemy_move_count;
 	int		anim_frame_count;
 	int		current_frame;
+	int		temp_collectibles;
+	int		temp_exit;
+	int		temp_enemies;
 	t_enemy	enemies[MAX_ENEMIES];
 	int		num_enemies;
 	t_img	wall;
@@ -116,6 +119,18 @@ typedef struct s_tile_params
 	char	tile_type;
 }			t_tile_params;
 
+typedef struct s_counts
+{
+	int	player;
+	int	exit;
+}	t_counts;
+
+typedef struct s_pos
+{
+	int	x;
+	int	y;
+}	t_pos;
+
 // Core functions
 int			init_mlx(t_game *game);
 void		init_img(t_img *img);
@@ -150,6 +165,9 @@ int			check_walls(t_game *game);
 int			check_rectangular(t_game *game);
 int			check_map_size_and_chars(t_game *game);
 int			read_map(char *file_path, t_game *game);
+void		init_counts(t_game *game, t_counts *counts);
+void		print_char_error(char c);
+void		print_config_error(int type);
 
 // Cleanup functions
 void		cleanup_game(t_game *game);

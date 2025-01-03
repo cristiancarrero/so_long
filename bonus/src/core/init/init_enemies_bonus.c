@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map_checks_bonus.c                                 :+:      :+:    :+:   */
+/*   init_enemies_bonus.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ccarrero <ccarrero@student.42.fr>          +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,41 +12,39 @@
 
 #include "../../../inc/so_long_bonus.h"
 
-int	check_rectangular(t_game *game)
+static void	set_enemy_type(t_enemy *enemy, char type)
 {
-	int		i;
-	size_t	expected_len;
-
-	if (game->map_height < 1)
-		return (0);
-	expected_len = ft_strlen(game->map[0]);
-	game->map_width = (int)expected_len;
-	i = 1;
-	while (i < game->map_height)
-	{
-		if (ft_strlen(game->map[i]) != expected_len)
-			return (0);
-		i++;
-	}
-	return (1);
+	if (type == 'N')
+		enemy->type = 0;
+	else
+		enemy->type = 1;
 }
 
-int	check_walls(t_game *game)
+void	init_enemies(t_game *game)
 {
 	int	i;
 	int	j;
+	int	enemy_count;
 
-	i = -1;
-	while (++i < game->map_height)
+	enemy_count = 0;
+	i = 0;
+	while (i < game->map_height && enemy_count < MAX_ENEMIES)
 	{
-		j = -1;
-		while (++j < game->map_width)
+		j = 0;
+		while (j < game->map_width && enemy_count < MAX_ENEMIES)
 		{
-			if ((i == 0 || i == game->map_height - 1
-					|| j == 0 || j == game->map_width - 1)
-				&& game->map[i][j] != '1')
-				return (0);
+			if (game->map[i][j] == 'N' || game->map[i][j] == 'M')
+			{
+				game->enemies[enemy_count].x = j;
+				game->enemies[enemy_count].y = i;
+				game->enemies[enemy_count].direction = 1;
+				game->enemies[enemy_count].frame = 0;
+				set_enemy_type(&game->enemies[enemy_count], game->map[i][j]);
+				enemy_count++;
+			}
+			j++;
 		}
+		i++;
 	}
-	return (1);
+	game->num_enemies = enemy_count;
 }
